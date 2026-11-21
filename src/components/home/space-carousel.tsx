@@ -10,10 +10,10 @@ import {
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   LayoutDashboard,
+  Lightbulb,
   List,
   Plus,
   Settings,
-  Wallet,
 } from "lucide-react";
 import {
   HOME_SPACES,
@@ -35,7 +35,7 @@ const tabIcon = {
   home: LayoutDashboard,
   list: List,
   capture: Plus,
-  budget: Wallet,
+  tips: Lightbulb,
   more: Settings,
 } as const;
 

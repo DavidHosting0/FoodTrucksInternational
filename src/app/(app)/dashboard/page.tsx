@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import {
   getCategories,
+  getExpenseTipsReport,
   getHouseholdBudget,
   getRecurringExpenses,
   getSavingsOpportunities,
@@ -12,11 +13,11 @@ import { monthPersonTotals } from "@/lib/analytics/split";
 import { formatMoney } from "@/lib/format";
 import { HomeSpaces } from "@/components/home/home-spaces";
 import {
-  BudgetsSpace,
   CaptureSpace,
   ListSpace,
   MoreSpace,
   OverviewSpace,
+  TipsSpace,
 } from "@/components/home/space-panels";
 
 function yearly(amount: number, interval: string) {
@@ -33,14 +34,21 @@ export default async function DashboardPage({
   const params = await searchParams;
   const month = params.month ?? format(new Date(), "yyyy-MM");
 
-  const [transactions, householdBudget, subscriptions, categories, stored] =
-    await Promise.all([
-      getTransactions(),
-      getHouseholdBudget(month),
-      getRecurringExpenses(),
-      getCategories(),
-      getSavingsOpportunities(),
-    ]);
+  const [
+    transactions,
+    householdBudget,
+    subscriptions,
+    categories,
+    stored,
+    tipsReport,
+  ] = await Promise.all([
+    getTransactions(),
+    getHouseholdBudget(month),
+    getRecurringExpenses(),
+    getCategories(),
+    getSavingsOpportunities(),
+    getExpenseTipsReport(month),
+  ]);
 
   const metrics = computeDashboardMetrics(transactions);
   const personTotals = monthPersonTotals(transactions, month);
@@ -116,13 +124,11 @@ export default async function DashboardPage({
           />
         ),
         capture: <CaptureSpace categories={categories} />,
-        budget: (
-          <BudgetsSpace
+        tips: (
+          <TipsSpace
             month={month}
-            budget={householdBudget}
-            spent={budgetSpent}
-            carlo={personTotals.carlo}
-            david={personTotals.david}
+            report={tipsReport}
+            currency={currency}
           />
         ),
         more: (

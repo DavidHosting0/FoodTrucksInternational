@@ -6,6 +6,7 @@ import {
   FileImage,
   FileText,
   LayoutDashboard,
+  Lightbulb,
   List,
   PlusCircle,
   Repeat,
@@ -24,6 +25,7 @@ const iconMap = {
   FileImage,
   Tags,
   Wallet,
+  Lightbulb,
   Repeat,
   TrendingDown,
   FileText,
@@ -37,7 +39,8 @@ function tabActive(pathname: string, search: string, space: string) {
   const aliases: Record<string, string> = {
     overview: "home",
     activity: "list",
-    budgets: "budget",
+    budget: "tips",
+    budgets: "tips",
   };
   return (aliases[current] ?? current) === space;
 }

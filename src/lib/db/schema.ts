@@ -222,6 +222,37 @@ export const savingsOpportunities = pgTable("savings_opportunities", {
     .defaultNow(),
 });
 
+export const expenseTipsReports = pgTable(
+  "expense_tips_reports",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    month: date("month").notNull(),
+    summary: text("summary").notNull().default(""),
+    tips: jsonb("tips").notNull().default(sql`'[]'::jsonb`),
+    estimatedMonthlySavings: numeric("estimated_monthly_savings", {
+      precision: 12,
+      scale: 2,
+    })
+      .notNull()
+      .default("0"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("expense_tips_reports_user_month_idx").on(
+      table.userId,
+      table.month
+    ),
+  ]
+);
+
 export const transactionNotes = pgTable("transaction_notes", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id")
@@ -285,3 +316,4 @@ export type HouseholdBudgetRow = typeof householdBudgets.$inferSelect;
 export type RecurringExpenseRow = typeof recurringExpenses.$inferSelect;
 export type ReceiptRow = typeof receipts.$inferSelect;
 export type SavingsOpportunityRow = typeof savingsOpportunities.$inferSelect;
+export type ExpenseTipsReportRow = typeof expenseTipsReports.$inferSelect;

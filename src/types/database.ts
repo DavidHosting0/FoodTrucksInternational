@@ -161,6 +161,34 @@ export interface SavingsOpportunity {
   updated_at: string;
 }
 
+export type ExpenseTipSeverity =
+  | "unnecessary"
+  | "questionable"
+  | "ok";
+
+export interface ExpenseTip {
+  transaction_id: string | null;
+  merchant: string;
+  item: string | null;
+  severity: ExpenseTipSeverity;
+  necessity: Necessity;
+  reason: string;
+  alternative: string;
+  estimated_savings: number;
+  priority: "low" | "medium" | "high";
+}
+
+export interface ExpenseTipsReport {
+  id: string;
+  user_id: string;
+  month: string;
+  summary: string;
+  tips: ExpenseTip[];
+  estimated_monthly_savings: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface TransactionNote {
   id: string;
   user_id: string;

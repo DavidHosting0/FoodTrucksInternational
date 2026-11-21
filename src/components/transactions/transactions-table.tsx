@@ -9,6 +9,12 @@ function initial(merchant: string) {
   return merchant.trim().charAt(0).toUpperCase() || "?";
 }
 
+function necessityLabel(value: TransactionWithCategory["necessity"]) {
+  if (value === "unnecessary") return "Unnötig";
+  if (value === "optional") return "Optional";
+  return null;
+}
+
 export function TransactionsTable({
   transactions,
 }: {
@@ -35,6 +41,7 @@ export function TransactionsTable({
     <ul className="space-y-2">
       {transactions.map((tx) => {
         const share = transactionPersonShare(tx);
+        const flag = necessityLabel(tx.necessity);
         return (
           <li key={tx.id}>
             <Link
@@ -51,9 +58,23 @@ export function TransactionsTable({
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-start justify-between gap-3">
-                  <p className="truncate font-medium leading-tight">
-                    {tx.merchant}
-                  </p>
+                  <div className="min-w-0">
+                    <p className="truncate font-medium leading-tight">
+                      {tx.merchant}
+                    </p>
+                    {flag ? (
+                      <span
+                        className={cn(
+                          "mt-1 inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold",
+                          tx.necessity === "unnecessary"
+                            ? "bg-destructive/15 text-destructive"
+                            : "bg-white/10 text-muted-foreground"
+                        )}
+                      >
+                        {flag}
+                      </span>
+                    ) : null}
+                  </div>
                   <p className="shrink-0 font-semibold tabular-nums text-expense">
                     −{formatMoney(Number(tx.amount), tx.currency)}
                   </p>

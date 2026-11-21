@@ -12,6 +12,7 @@ import {
 import {
   budgets,
   categories,
+  expenseTipsReports,
   householdBudgets,
   receipts,
   recurringExpenses,
@@ -31,7 +32,10 @@ import { DEMO_USER_ID, isDemoMode } from "@/lib/demo/mode";
 import type {
   Budget,
   Category,
+  ExpenseTip,
+  ExpenseTipsReport,
   HouseholdBudget,
+  Necessity,
   Receipt,
   RecurringExpense,
   SavingsOpportunity,
@@ -632,4 +636,137 @@ export async function replaceSavingsOpportunities(
     .returning();
 
   return rows.map(mapSavings);
+}
+
+function mapExpenseTipsReport(row: {
+  id: string;
+  userId: string;
+  month: string;
+  summary: string;
+  tips: unknown;
+  estimatedMonthlySavings: string;
+  createdAt: Date;
+  updatedAt: Date;
+}): ExpenseTipsReport {
+  return {
+    id: row.id,
+    user_id: row.userId,
+    month: row.month,
+    summary: row.summary,
+    tips: (Array.isArray(row.tips) ? row.tips : []) as ExpenseTip[],
+    estimated_monthly_savings: Number(row.estimatedMonthlySavings),
+    created_at: row.createdAt.toISOString(),
+    updated_at: row.updatedAt.toISOString(),
+  };
+}
+
+export async function getExpenseTipsReport(
+  month: string
+): Promise<ExpenseTipsReport | null> {
+  if (isDemoMode()) return null;
+
+  const db = getDb();
+  const userId = await requireUserId();
+  const monthStart = `${month.slice(0, 7)}-01`;
+  const [row] = await db
+    .select()
+    .from(expenseTipsReports)
+    .where(
+      and(
+        eq(expenseTipsReports.userId, userId),
+        eq(expenseTipsReports.month, monthStart)
+      )
+    )
+    .limit(1);
+
+  return row ? mapExpenseTipsReport(row) : null;
+}
+
+export async function upsertExpenseTipsReport(input: {
+  month: string;
+  summary: string;
+  tips: ExpenseTip[];
+  estimated_monthly_savings: number;
+}): Promise<ExpenseTipsReport> {
+  const db = getDb();
+  const userId = await requireUserId();
+  const monthStart = `${input.month.slice(0, 7)}-01`;
+
+  const [existing] = await db
+    .select()
+    .from(expenseTipsReports)
+    .where(
+      and(
+        eq(expenseTipsReports.userId, userId),
+        eq(expenseTipsReports.month, monthStart)
+      )
+    )
+    .limit(1);
+
+  if (existing) {
+    const [row] = await db
+      .update(expenseTipsReports)
+      .set({
+        summary: input.summary,
+        tips: input.tips,
+        estimatedMonthlySavings: String(input.estimated_monthly_savings),
+        updatedAt: new Date(),
+      })
+      .where(eq(expenseTipsReports.id, existing.id))
+      .returning();
+    return mapExpenseTipsReport(row);
+  }
+
+  const [row] = await db
+    .insert(expenseTipsReports)
+    .values({
+      userId,
+      month: monthStart,
+      summary: input.summary,
+      tips: input.tips,
+      estimatedMonthlySavings: String(input.estimated_monthly_savings),
+    })
+    .returning();
+
+  return mapExpenseTipsReport(row);
+}
+
+export async function updateTransactionNecessities(
+  updates: Array<{ id: string; necessity: Necessity }>
+) {
+  if (updates.length === 0) return;
+  if (isDemoMode()) {
+    for (const update of updates) {
+      const existing = getDemoTransaction(update.id);
+      if (!existing) continue;
+      const {
+        id: _id,
+        user_id: _userId,
+        created_at: _created,
+        updated_at: _updated,
+        ...rest
+      } = existing;
+      updateDemoTransaction(update.id, {
+        ...rest,
+        necessity: update.necessity,
+      });
+    }
+    return;
+  }
+
+  const db = getDb();
+  const userId = await requireUserId();
+  await Promise.all(
+    updates.map((update) =>
+      db
+        .update(transactions)
+        .set({
+          necessity: update.necessity,
+          updatedAt: new Date(),
+        })
+        .where(
+          and(eq(transactions.id, update.id), eq(transactions.userId, userId))
+        )
+    )
+  );
 }

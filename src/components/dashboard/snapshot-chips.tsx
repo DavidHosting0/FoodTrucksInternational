@@ -19,7 +19,7 @@ export function SnapshotChips({
   return (
     <section className="animate-hero-in grid grid-cols-3 gap-2 [animation-delay:120ms]">
       <Link
-        href="/dashboard?tab=budget"
+        href="/budgets"
         className="metal-surface rounded-3xl px-3 py-3.5 transition-transform active:scale-[0.98]"
       >
         <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
@@ -49,17 +49,17 @@ export function SnapshotChips({
         </p>
       </Link>
       <Link
-        href="/dashboard?tab=more"
+        href="/dashboard?tab=tips"
         className="metal-surface rounded-3xl px-3 py-3.5 transition-transform active:scale-[0.98]"
       >
         <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-          Mehr
+          AI Tipps
         </p>
         <p className="mt-1.5 text-xl font-semibold text-primary sm:text-2xl">
           Tipps
         </p>
         <p className="mt-1 text-[10px] leading-snug text-muted-foreground">
-          Optimize
+          Ausgaben prüfen
         </p>
       </Link>
     </section>

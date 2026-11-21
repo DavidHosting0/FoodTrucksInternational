@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FileImage, List, Plus, Wallet } from "lucide-react";
+import { FileImage, Lightbulb, List, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const actions = [
@@ -15,9 +15,9 @@ const actions = [
     icon: List,
   },
   {
-    href: "/dashboard?tab=budget",
-    label: "Budget",
-    icon: Wallet,
+    href: "/dashboard?tab=tips",
+    label: "Tipps",
+    icon: Lightbulb,
   },
   {
     href: "/dashboard?tab=more",

@@ -2,7 +2,7 @@ export const HOME_SPACES = [
   { id: "home", title: "Home", short: "Home" },
   { id: "list", title: "Liste", short: "Liste" },
   { id: "capture", title: "Erfassen", short: "+" },
-  { id: "budget", title: "Budget", short: "Budget" },
+  { id: "tips", title: "Tipps", short: "Tipps" },
   { id: "more", title: "Mehr", short: "Mehr" },
 ] as const;
 
@@ -15,8 +15,10 @@ const ALIASES: Record<string, HomeSpaceId> = {
   activity: "list",
   capture: "capture",
   plus: "capture",
-  budget: "budget",
-  budgets: "budget",
+  tips: "tips",
+  tip: "tips",
+  budget: "tips",
+  budgets: "tips",
   more: "more",
   settings: "more",
 };

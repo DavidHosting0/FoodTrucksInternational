@@ -45,8 +45,9 @@ export const NAV_ITEMS = [
   { href: "/dashboard", label: "Home", icon: "LayoutDashboard" },
   { href: "/dashboard?tab=list", label: "Liste", icon: "List" },
   { href: "/dashboard?tab=capture", label: "Erfassen", icon: "PlusCircle" },
-  { href: "/dashboard?tab=budget", label: "Budget", icon: "Wallet" },
+  { href: "/dashboard?tab=tips", label: "Tipps", icon: "Lightbulb" },
   { href: "/dashboard?tab=more", label: "Mehr", icon: "Settings" },
+  { href: "/budgets", label: "Gesamtbudget", icon: "Wallet" },
   { href: "/receipts", label: "Belege", icon: "FileImage" },
   { href: "/categories", label: "Kategorien", icon: "Tags" },
   { href: "/subscriptions", label: "Abonnements", icon: "Repeat" },
@@ -59,11 +60,12 @@ export const SPACE_NAV_ITEMS = [
   { href: "/dashboard", label: "Home", space: "home" },
   { href: "/dashboard?tab=list", label: "Liste", space: "list" },
   { href: "/dashboard?tab=capture", label: "Erfassen", space: "capture" },
-  { href: "/dashboard?tab=budget", label: "Budget", space: "budget" },
+  { href: "/dashboard?tab=tips", label: "Tipps", space: "tips" },
   { href: "/dashboard?tab=more", label: "Mehr", space: "more" },
 ] as const;
 
 export const MORE_NAV_ITEMS = [
+  { href: "/budgets", label: "Gesamtbudget", icon: "Wallet" },
   { href: "/receipts", label: "Belege", icon: "FileImage" },
   { href: "/categories", label: "Kategorien", icon: "Tags" },
   { href: "/subscriptions", label: "Abos", icon: "Repeat" },

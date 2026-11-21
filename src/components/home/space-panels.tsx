@@ -4,12 +4,11 @@ import type { DashboardMetrics } from "@/lib/analytics/dashboard";
 import { formatMoney } from "@/lib/format";
 import type {
   Category,
-  HouseholdBudget,
+  ExpenseTipsReport,
   RecurringExpense,
   SavingsOpportunity,
   TransactionWithCategory,
 } from "@/types/database";
-import { HouseholdBudgetCard } from "@/components/budgets/household-budget-card";
 import { MonthPicker } from "@/components/budgets/month-picker";
 import { HeroBalance } from "@/components/dashboard/hero-balance";
 import { InsightsList } from "@/components/dashboard/insights";
@@ -18,6 +17,7 @@ import { QuickActions } from "@/components/dashboard/quick-actions";
 import { SnapshotChips } from "@/components/dashboard/snapshot-chips";
 import { ReceiptCaptureFlow } from "@/components/receipts/receipt-capture-flow";
 import { SubscriptionsManager } from "@/components/subscriptions/subscriptions-manager";
+import { ExpenseTipsPanel } from "@/components/tips/expense-tips-panel";
 import { TransactionsTable } from "@/components/transactions/transactions-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -123,37 +123,27 @@ export function CaptureSpace({ categories }: { categories: Category[] }) {
   );
 }
 
-export function BudgetsSpace({
+export function TipsSpace({
   month,
-  budget,
-  spent,
-  carlo,
-  david,
+  report,
+  currency,
 }: {
   month: string;
-  budget: HouseholdBudget | null;
-  spent: number;
-  carlo: number;
-  david: number;
+  report: ExpenseTipsReport | null;
+  currency: string;
 }) {
   return (
     <div className="space-y-5 pb-4 pt-2">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-semibold tracking-tight">Budget</h2>
+          <h2 className="text-2xl font-semibold tracking-tight">Tipps</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Gesamt für Carlo & David
+            AI bewertet Ausgaben & Artikel
           </p>
         </div>
         <MonthPicker month={month} />
       </div>
-      <HouseholdBudgetCard
-        month={month}
-        budget={budget}
-        spent={spent}
-        carlo={carlo}
-        david={david}
-      />
+      <ExpenseTipsPanel month={month} report={report} currency={currency} />
     </div>
   );
 }
@@ -183,6 +173,7 @@ export function MoreSpace({
       <div className="metal-surface grid gap-1 rounded-3xl p-2">
         {[
           { href: "/settings", label: "Einstellungen" },
+          { href: "/budgets", label: "Gesamtbudget" },
           { href: "/receipts", label: "Belege" },
           { href: "/categories", label: "Kategorien" },
           { href: "/reports", label: "Reports" },
