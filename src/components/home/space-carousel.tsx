@@ -292,7 +292,7 @@ export function SpaceCarousel({ initialSpace, panels }: Props) {
               key={space.id}
               data-space={space.id}
               aria-hidden={space.id !== activeId}
-              className="h-full w-full shrink-0 grow-0 basis-full overflow-y-auto overscroll-y-contain px-1 pb-28"
+              className="h-full w-full shrink-0 grow-0 basis-full overflow-x-hidden overflow-y-auto overscroll-y-contain px-1 pb-28 scrollbar-none"
               style={{
                 width: "100%",
                 minWidth: "100%",

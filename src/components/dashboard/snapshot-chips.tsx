@@ -17,46 +17,50 @@ export function SnapshotChips({
   activeSubs: number;
 }) {
   return (
-    <section className="animate-hero-in flex gap-3 overflow-x-auto pb-1 [animation-delay:120ms] scrollbar-none">
+    <section className="animate-hero-in grid grid-cols-3 gap-2 [animation-delay:120ms]">
       <Link
         href="/dashboard?tab=budget"
-        className="metal-surface min-w-[9.5rem] shrink-0 rounded-3xl px-4 py-4 transition-transform active:scale-[0.98]"
+        className="metal-surface rounded-3xl px-3 py-3.5 transition-transform active:scale-[0.98]"
       >
-        <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+        <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
           Budget
         </p>
-        <p className="mt-2 text-2xl font-semibold tabular-nums text-primary">
+        <p className="mt-1.5 text-xl font-semibold tabular-nums text-primary sm:text-2xl">
           {budgetPct === null ? "—" : `${budgetPct}%`}
         </p>
-        <p className="mt-1 text-xs text-muted-foreground">
+        <p className="mt-1 line-clamp-2 text-[10px] leading-snug text-muted-foreground">
           {budgetTotal > 0
             ? `${formatMoney(budgetSpent, currency)} / ${formatMoney(budgetTotal, currency)}`
-            : "Noch keins gesetzt"}
+            : "Noch keins"}
         </p>
       </Link>
       <Link
         href="/subscriptions"
-        className="metal-surface min-w-[9.5rem] shrink-0 rounded-3xl px-4 py-4 transition-transform active:scale-[0.98]"
+        className="metal-surface rounded-3xl px-3 py-3.5 transition-transform active:scale-[0.98]"
       >
-        <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+        <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
           Abos / Jahr
         </p>
-        <p className="mt-2 text-2xl font-semibold tabular-nums">
+        <p className="mt-1.5 text-xl font-semibold tabular-nums sm:text-2xl">
           {formatMoney(subYearly, currency)}
         </p>
-        <p className="mt-1 text-xs text-muted-foreground">
-          {activeSubs} aktive Abos
+        <p className="mt-1 text-[10px] leading-snug text-muted-foreground">
+          {activeSubs} aktiv
         </p>
       </Link>
       <Link
         href="/dashboard?tab=more"
-        className="metal-surface min-w-[9.5rem] shrink-0 rounded-3xl px-4 py-4 transition-transform active:scale-[0.98]"
+        className="metal-surface rounded-3xl px-3 py-3.5 transition-transform active:scale-[0.98]"
       >
-        <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+        <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
           Mehr
         </p>
-        <p className="mt-2 text-2xl font-semibold text-primary">Tipps</p>
-        <p className="mt-1 text-xs text-muted-foreground">Optimize & Abos</p>
+        <p className="mt-1.5 text-xl font-semibold text-primary sm:text-2xl">
+          Tipps
+        </p>
+        <p className="mt-1 text-[10px] leading-snug text-muted-foreground">
+          Optimize
+        </p>
       </Link>
     </section>
   );

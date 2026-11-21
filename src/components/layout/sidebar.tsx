@@ -2,7 +2,8 @@
 
 import { Suspense } from "react";
 import Link from "next/link";
-import { Settings } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { ArrowLeft, Settings } from "lucide-react";
 import { FigBrandMark } from "@/components/brand/fig-logo";
 import { NavItems } from "@/components/layout/nav-items";
 import { SignOutButton } from "@/components/layout/sign-out-button";
@@ -28,20 +29,27 @@ export function Sidebar() {
 }
 
 export function MobileNav() {
+  const pathname = usePathname();
+  const onSettings = pathname === "/settings" || pathname.startsWith("/settings/");
+
   return (
     <div className="flex h-14 items-center justify-between px-4 pt-safe lg:hidden">
       <Link href="/dashboard" aria-label="Home">
         <FigBrandMark showTagline={false} />
       </Link>
       <Link
-        href="/settings"
-        aria-label="Einstellungen"
+        href={onSettings ? "/dashboard" : "/settings"}
+        aria-label={onSettings ? "Zurück" : "Einstellungen"}
         className={cn(
           buttonVariants({ variant: "ghost", size: "icon" }),
           "rounded-full metal-surface"
         )}
       >
-        <Settings className="size-5" />
+        {onSettings ? (
+          <ArrowLeft className="size-5" />
+        ) : (
+          <Settings className="size-5" />
+        )}
       </Link>
     </div>
   );
