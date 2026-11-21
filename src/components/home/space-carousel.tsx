@@ -281,7 +281,7 @@ export function SpaceCarousel({ initialSpace, panels }: Props) {
   }, [applyTransform, goToIndex]);
 
   return (
-    <div className="flex h-[calc(100svh-3.5rem-env(safe-area-inset-top,0px))] flex-col lg:h-[calc(100svh-2rem)]">
+    <div className="flex h-[calc(100dvh-3.5rem-env(safe-area-inset-top,0px))] flex-col lg:h-[calc(100dvh-2rem)]">
       <div
         ref={viewportRef}
         className="relative min-h-0 flex-1 overflow-hidden"
@@ -292,7 +292,7 @@ export function SpaceCarousel({ initialSpace, panels }: Props) {
               key={space.id}
               data-space={space.id}
               aria-hidden={space.id !== activeId}
-              className="h-full w-full shrink-0 grow-0 basis-full overflow-x-hidden overflow-y-auto overscroll-y-contain px-1 pb-28 scrollbar-none"
+              className="h-full w-full shrink-0 grow-0 basis-full overflow-x-hidden overflow-y-auto overscroll-y-contain px-1 pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] scrollbar-none"
               style={{
                 width: "100%",
                 minWidth: "100%",
@@ -307,55 +307,57 @@ export function SpaceCarousel({ initialSpace, panels }: Props) {
       </div>
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-40 px-3 pb-safe lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 lg:hidden"
         aria-label="Hauptnavigation"
       >
-        <div className="glass-nav mx-auto mb-2 flex h-[4.25rem] max-w-lg items-stretch justify-around rounded-[1.75rem] px-1">
-          {HOME_SPACES.map((space, i) => {
-            const Icon = tabIcon[space.id];
-            const active = space.id === activeId;
-            const primary = space.id === "capture";
+        <div className="border-t border-white/5 bg-background/90 px-3 pt-2 backdrop-blur-xl pb-[max(0.5rem,env(safe-area-inset-bottom,0px))]">
+          <div className="glass-nav mx-auto flex h-[4.25rem] max-w-lg items-stretch justify-around rounded-[1.75rem] px-1">
+            {HOME_SPACES.map((space, i) => {
+              const Icon = tabIcon[space.id];
+              const active = space.id === activeId;
+              const primary = space.id === "capture";
 
-            if (primary) {
+              if (primary) {
+                return (
+                  <button
+                    key={space.id}
+                    type="button"
+                    aria-label={space.title}
+                    aria-current={active}
+                    onClick={() => {
+                      goToIndex(i);
+                      openReceiptCamera();
+                    }}
+                    className="-mt-5 flex flex-col items-center justify-end pb-2 transition-transform active:scale-95"
+                  >
+                    <span className="metal-fab flex size-14 items-center justify-center rounded-full">
+                      <Icon className="size-7" strokeWidth={2.5} />
+                    </span>
+                  </button>
+                );
+              }
+
               return (
                 <button
                   key={space.id}
                   type="button"
                   aria-label={space.title}
                   aria-current={active}
-                  onClick={() => {
-                    goToIndex(i);
-                    openReceiptCamera();
-                  }}
-                  className="-mt-5 flex flex-col items-center justify-end pb-2 transition-transform active:scale-95"
+                  onClick={() => goToIndex(i)}
+                  className={cn(
+                    "flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 text-[10px] font-medium transition-colors",
+                    active ? "text-primary" : "text-muted-foreground"
+                  )}
                 >
-                  <span className="metal-fab flex size-14 items-center justify-center rounded-full">
-                    <Icon className="size-7" strokeWidth={2.5} />
-                  </span>
+                  <Icon
+                    className={cn("size-5", active && "scale-110")}
+                    strokeWidth={active ? 2.4 : 2}
+                  />
+                  <span className="truncate">{space.short}</span>
                 </button>
               );
-            }
-
-            return (
-              <button
-                key={space.id}
-                type="button"
-                aria-label={space.title}
-                aria-current={active}
-                onClick={() => goToIndex(i)}
-                className={cn(
-                  "flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 text-[10px] font-medium transition-colors",
-                  active ? "text-primary" : "text-muted-foreground"
-                )}
-              >
-                <Icon
-                  className={cn("size-5", active && "scale-110")}
-                  strokeWidth={active ? 2.4 : 2}
-                />
-                <span className="truncate">{space.short}</span>
-              </button>
-            );
-          })}
+            })}
+          </div>
         </div>
       </nav>
     </div>

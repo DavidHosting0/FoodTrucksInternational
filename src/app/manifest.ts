@@ -8,8 +8,8 @@ export default function manifest(): MetadataRoute.Manifest {
       "Persönliche Finanzen verwalten, Budgets tracken und Ausgaben optimieren.",
     start_url: "/dashboard",
     display: "standalone",
-    background_color: "#0a0f0d",
-    theme_color: "#0b0f0c",
+    background_color: "#07140f",
+    theme_color: "#07140f",
     orientation: "portrait-primary",
     icons: [
       {

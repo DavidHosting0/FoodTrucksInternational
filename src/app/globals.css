@@ -156,19 +156,22 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    @apply font-sans h-full;
+    background-color: var(--background);
+  }
   body {
-    @apply text-foreground antialiased;
+    @apply text-foreground antialiased min-h-dvh;
     background-color: var(--background);
     background-image: var(--app-aurora);
-    background-attachment: fixed;
-  }
-  html {
-    @apply font-sans;
+    background-attachment: scroll;
+    /* Paint under iOS home indicator / notches */
+    min-height: 100dvh;
   }
 }
 
 @utility pb-safe {
-  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
 }
 
 @utility pt-safe {
