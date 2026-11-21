@@ -1,6 +1,7 @@
 import { and, desc, eq } from "drizzle-orm";
 import { auth } from "@/auth";
 import { getDb } from "@/lib/db";
+import { ensureSchema } from "@/lib/db/ensure-schema";
 import {
   mapBudget,
   mapCategory,
@@ -47,6 +48,8 @@ export async function requireUserId() {
   if (isDemoMode()) {
     return DEMO_USER_ID;
   }
+
+  await ensureSchema();
 
   const session = await auth();
   if (!session?.user?.id) {
