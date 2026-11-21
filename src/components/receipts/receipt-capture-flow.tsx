@@ -22,16 +22,9 @@ export const OPEN_RECEIPT_CAMERA_EVENT = "fig:open-receipt-camera";
 
 type Phase = "capture" | "scanning" | "review";
 
+/** Always go through the capture flow so prior review state is cleared. */
 export function openReceiptCamera() {
-  const input = document.getElementById(
-    RECEIPT_CAMERA_INPUT_ID
-  ) as HTMLInputElement | null;
-  if (!input) {
-    window.dispatchEvent(new Event(OPEN_RECEIPT_CAMERA_EVENT));
-    return;
-  }
-  input.value = "";
-  input.click();
+  window.dispatchEvent(new Event(OPEN_RECEIPT_CAMERA_EVENT));
 }
 
 export function ReceiptCaptureFlow({
@@ -55,41 +48,6 @@ export function ReceiptCaptureFlow({
   const [pendingScan, startScan] = useTransition();
   const [pendingConfirm, startConfirm] = useTransition();
 
-  const triggerCamera = () => {
-    const input = fileRef.current;
-    if (!input) return;
-    input.value = "";
-    input.click();
-  };
-
-  useEffect(() => {
-    const onOpen = () => {
-      const input = fileRef.current;
-      if (!input) return;
-      input.value = "";
-      input.click();
-    };
-    window.addEventListener(OPEN_RECEIPT_CAMERA_EVENT, onOpen);
-    return () => window.removeEventListener(OPEN_RECEIPT_CAMERA_EVENT, onOpen);
-  }, []);
-
-  useEffect(() => {
-    if (!autoOpenCamera) return;
-    const t = window.setTimeout(() => {
-      const input = fileRef.current;
-      if (!input) return;
-      input.value = "";
-      input.click();
-    }, 50);
-    return () => window.clearTimeout(t);
-  }, [autoOpenCamera]);
-
-  useEffect(() => {
-    return () => {
-      if (preview) URL.revokeObjectURL(preview);
-    };
-  }, [preview]);
-
   const reset = () => {
     setPhase("capture");
     setDraft(null);
@@ -103,6 +61,48 @@ export function ReceiptCaptureFlow({
     });
     if (fileRef.current) fileRef.current.value = "";
   };
+
+  const triggerCamera = () => {
+    const input = fileRef.current;
+    if (!input) return;
+    input.value = "";
+    input.click();
+  };
+
+  const startFreshCapture = () => {
+    reset();
+    // Let React clear the review UI before opening the system camera.
+    window.setTimeout(() => {
+      const input = fileRef.current;
+      if (!input) return;
+      input.value = "";
+      input.click();
+    }, 30);
+  };
+
+  useEffect(() => {
+    const onOpen = () => {
+      startFreshCapture();
+    };
+    window.addEventListener(OPEN_RECEIPT_CAMERA_EVENT, onOpen);
+    return () => window.removeEventListener(OPEN_RECEIPT_CAMERA_EVENT, onOpen);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- bind once; reset/startFresh use latest state setters
+  }, []);
+
+  useEffect(() => {
+    if (!autoOpenCamera) return;
+    const t = window.setTimeout(() => {
+      startFreshCapture();
+    }, 50);
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoOpenCamera]);
+
+  useEffect(() => {
+    return () => {
+      if (preview) URL.revokeObjectURL(preview);
+    };
+  }, [preview]);
 
   const runScan = (file: File) => {
     setScanError(null);
@@ -170,6 +170,7 @@ export function ReceiptCaptureFlow({
         return;
       }
       toast.success(result.success ?? "Gespeichert");
+      reset();
       onDone?.();
       router.push("/dashboard?tab=list");
       router.refresh();
@@ -222,6 +223,7 @@ export function ReceiptCaptureFlow({
       {phase === "review" && draft && scanId ? (
         <div className="space-y-4">
           <ReceiptReview
+            key={scanId}
             initial={draft}
             categories={categories}
             previewUrl={previewUrl ?? preview ?? undefined}
@@ -234,10 +236,7 @@ export function ReceiptCaptureFlow({
             type="button"
             variant="ghost"
             className="w-full"
-            onClick={() => {
-              reset();
-              triggerCamera();
-            }}
+            onClick={startFreshCapture}
           >
             Anderes Foto
           </Button>
