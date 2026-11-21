@@ -9,6 +9,7 @@
     "lint": "eslint",
     "db:push": "drizzle-kit push",
     "db:generate": "drizzle-kit generate",
+    "db:seed": "node --env-file=.env.local scripts/seed-default-user.mjs",
     "icons": "node scripts/make-icons.mjs"
   },
   "dependencies": {

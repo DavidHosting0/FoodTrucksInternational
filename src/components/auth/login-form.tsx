@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useActionState } from "react";
 import { login, type AuthState } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
@@ -36,7 +35,8 @@ export function LoginForm() {
           type="email"
           autoComplete="email"
           required
-          placeholder="name@example.com"
+          defaultValue="finanzen@fig.global"
+          placeholder="finanzen@fig.global"
         />
       </div>
       <div className="space-y-2">
@@ -47,20 +47,12 @@ export function LoginForm() {
           type="password"
           autoComplete="current-password"
           required
-          minLength={6}
         />
       </div>
 
       <Button type="submit" size="lg" className="w-full" disabled={pending}>
         {pending ? "Wird angemeldet…" : "Weiter"}
       </Button>
-
-      <p className="text-center text-sm text-muted-foreground">
-        Noch kein Konto?{" "}
-        <Link href="/signup" className="font-medium text-primary">
-          Registrieren
-        </Link>
-      </p>
     </form>
   );
 }

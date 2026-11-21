@@ -6,13 +6,9 @@ import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
 import { signIn, signOut as nextAuthSignOut, auth } from "@/auth";
 import { getDb } from "@/lib/db";
-import { DEFAULT_CATEGORIES } from "@/lib/db/seed-categories";
-import { categories, profiles, users } from "@/lib/db/schema";
+import { users } from "@/lib/db/schema";
 import { isDemoMode } from "@/lib/demo/mode";
-import {
-  loginSchema,
-  signupSchema,
-} from "@/lib/validations/auth";
+import { loginSchema } from "@/lib/validations/auth";
 import { z } from "zod";
 
 export type AuthState = {
@@ -51,74 +47,11 @@ export async function login(
 
 export async function signup(
   _prev: AuthState,
-  formData: FormData
+  _formData: FormData
 ): Promise<AuthState> {
-  if (isDemoMode()) {
-    redirect("/dashboard");
-  }
-
-  const parsed = signupSchema.safeParse({
-    displayName: formData.get("displayName"),
-    email: formData.get("email"),
-    password: formData.get("password"),
-  });
-
-  if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Ungültige Eingabe" };
-  }
-
-  const email = parsed.data.email.toLowerCase();
-  const db = getDb();
-
-  const [existing] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.email, email))
-    .limit(1);
-
-  if (existing) {
-    return { error: "Diese E-Mail ist bereits registriert" };
-  }
-
-  const passwordHash = await hash(parsed.data.password, 12);
-
-  const [user] = await db
-    .insert(users)
-    .values({ email, passwordHash })
-    .returning();
-
-  await db.insert(profiles).values({
-    id: user.id,
-    displayName: parsed.data.displayName,
-  });
-
-  await db.insert(categories).values(
-    DEFAULT_CATEGORIES.map((cat) => ({
-      userId: user.id,
-      name: cat.name,
-      icon: cat.icon,
-      color: cat.color,
-      isDefault: true,
-    }))
-  );
-
-  try {
-    await signIn("credentials", {
-      email,
-      password: parsed.data.password,
-      redirect: false,
-    });
-  } catch (error) {
-    if (error instanceof AuthError) {
-      return {
-        error:
-          "Konto erstellt, aber Login fehlgeschlagen. Bitte erneut anmelden.",
-      };
-    }
-    throw error;
-  }
-
-  redirect("/dashboard");
+  return {
+    error: "Registrierung ist deaktiviert. Bitte den Standard-Account nutzen.",
+  };
 }
 
 export async function signOut() {
@@ -127,8 +60,8 @@ export async function signOut() {
 }
 
 const passwordChangeSchema = z.object({
-  currentPassword: z.string().min(6),
-  newPassword: z.string().min(6, "Mindestens 6 Zeichen"),
+  currentPassword: z.string().min(1),
+  newPassword: z.string().min(1, "Passwort erforderlich"),
 });
 
 export async function changePassword(

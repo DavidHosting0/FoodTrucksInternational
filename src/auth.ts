@@ -4,6 +4,7 @@ import { compare } from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { authConfig } from "@/auth.config";
 import { getDb } from "@/lib/db";
+import { ensureDefaultUser } from "@/lib/db/default-user";
 import { profiles, users } from "@/lib/db/schema";
 import { isDemoMode, DEMO_USER_ID } from "@/lib/demo/mode";
 import { loginSchema } from "@/lib/validations/auth";
@@ -38,6 +39,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const parsed = loginSchema.safeParse(credentials);
         if (!parsed.success) return null;
+
+        await ensureDefaultUser();
 
         const db = getDb();
         const [user] = await db

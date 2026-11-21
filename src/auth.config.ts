@@ -17,9 +17,13 @@ export const authConfig = {
   callbacks: {
     authorized({ auth, request }) {
       const { pathname } = request.nextUrl;
-      const isAuthRoute =
-        pathname.startsWith("/login") || pathname.startsWith("/signup");
+      const isSignup = pathname.startsWith("/signup");
+      const isAuthRoute = pathname.startsWith("/login") || isSignup;
       const isLoggedIn = Boolean(auth?.user);
+
+      if (isSignup) {
+        return Response.redirect(new URL("/login", request.url));
+      }
 
       if (process.env.NEXT_PUBLIC_DEMO_MODE === "true") {
         if (isAuthRoute) return Response.redirect(new URL("/dashboard", request.url));
