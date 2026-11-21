@@ -195,7 +195,10 @@ export async function scanReceiptAction(
 
 const confirmSchema = z.object({
   scanId: z.string().uuid(),
-  category_id: z.string().uuid(),
+  category_id: z
+    .union([z.string().uuid(), z.literal("")])
+    .optional()
+    .transform((value) => (value ? value : null)),
   accept_total_mismatch: z.boolean().optional().default(false),
   split: splitDataSchema,
 });
@@ -213,7 +216,7 @@ export async function confirmReceiptSplitAction(
 
   const parsed = confirmSchema.safeParse({
     scanId: formData.get("scanId"),
-    category_id: formData.get("category_id"),
+    category_id: String(formData.get("category_id") ?? ""),
     accept_total_mismatch: formData.get("accept_total_mismatch") === "on",
     split: splitRaw,
   });

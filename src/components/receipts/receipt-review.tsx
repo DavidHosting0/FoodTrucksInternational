@@ -12,6 +12,7 @@ import {
 } from "@/lib/validations/split";
 import { CURRENCIES } from "@/lib/constants";
 import { formatMoney } from "@/lib/format";
+import { guessCategoryId } from "@/lib/receipts/guess-category";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -78,13 +79,20 @@ export function ReceiptReview({
   pending?: boolean;
   onSubmit: (payload: {
     split: SplitData;
-    categoryId: string;
+    categoryId: string | null;
     acceptMismatch: boolean;
   }) => void;
 }) {
-  const [metaOpen, setMetaOpen] = useState(true);
+  const [metaOpen, setMetaOpen] = useState(false);
   const [split, setSplit] = useState<SplitData>(initial);
-  const [categoryId, setCategoryId] = useState(categories[0]?.id ?? "");
+  const [categoryId, setCategoryId] = useState(
+    () =>
+      guessCategoryId(
+        categories,
+        initial.merchant_meta.merchant,
+        initial.items.map((item) => item.name)
+      ) ?? ""
+  );
   const [acceptMismatch, setAcceptMismatch] = useState(false);
 
   const totals = useMemo(
@@ -443,20 +451,25 @@ export function ReceiptReview({
       </section>
 
       <div className="space-y-2">
-        <Label htmlFor="category">Kategorie *</Label>
+        <Label htmlFor="category">Kategorie</Label>
         <select
           id="category"
-          required
           className={selectClass}
           value={categoryId}
           onChange={(e) => setCategoryId(e.target.value)}
         >
+          <option value="">Keine / später</option>
           {categories.map((cat) => (
             <option key={cat.id} value={cat.id}>
               {cat.name}
             </option>
           ))}
         </select>
+        <p className="text-xs text-muted-foreground">
+          {categoryId
+            ? "Automatisch erkannt — bei Bedarf ändern."
+            : "Nicht sicher erkannt — leer lassen ist ok."}
+        </p>
       </div>
 
       {mismatch ? (
@@ -484,14 +497,14 @@ export function ReceiptReview({
         type="button"
         size="lg"
         className="w-full"
-        disabled={pending || !categoryId || (mismatch && !acceptMismatch)}
+        disabled={pending || (mismatch && !acceptMismatch)}
         onClick={() =>
           onSubmit({
             split: {
               ...split,
               totals,
             },
-            categoryId,
+            categoryId: categoryId || null,
             acceptMismatch,
           })
         }

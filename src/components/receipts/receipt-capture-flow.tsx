@@ -149,14 +149,14 @@ export function ReceiptCaptureFlow({
 
   const onConfirm = (payload: {
     split: SplitData;
-    categoryId: string;
+    categoryId: string | null;
     acceptMismatch: boolean;
   }) => {
     if (!scanId) return;
     setConfirmError(null);
     const fd = new FormData();
     fd.set("scanId", scanId);
-    fd.set("category_id", payload.categoryId);
+    if (payload.categoryId) fd.set("category_id", payload.categoryId);
     fd.set("split_json", JSON.stringify(payload.split));
     if (payload.acceptMismatch) fd.set("accept_total_mismatch", "on");
 
