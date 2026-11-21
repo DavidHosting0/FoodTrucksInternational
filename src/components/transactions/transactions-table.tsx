@@ -21,6 +21,10 @@ function necessityLabel(value: string | null) {
   return NECESSITY_OPTIONS.find((o) => o.value === value)?.label ?? value;
 }
 
+function initial(merchant: string) {
+  return merchant.trim().charAt(0).toUpperCase() || "?";
+}
+
 export function TransactionsTable({
   transactions,
 }: {
@@ -28,14 +32,14 @@ export function TransactionsTable({
 }) {
   if (transactions.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-border/60 px-6 py-16 text-center">
-        <p className="text-lg font-medium">Noch keine Transaktionen</p>
+      <div className="rounded-3xl bg-card px-6 py-16 text-center">
+        <p className="text-lg font-semibold">Noch keine Transaktionen</p>
         <p className="mt-1 text-sm text-muted-foreground">
-          Erfasse deine erste Ausgabe, um das Dashboard zu füllen.
+          Erfasse deine erste Ausgabe.
         </p>
         <Link
           href="/transactions/new"
-          className={cn(buttonVariants(), "mt-4 inline-flex")}
+          className={cn(buttonVariants(), "mt-5 inline-flex")}
         >
           Ausgabe erfassen
         </Link>
@@ -45,47 +49,40 @@ export function TransactionsTable({
 
   return (
     <>
-      <div className="space-y-3 md:hidden">
+      <div className="space-y-2 md:hidden">
         {transactions.map((tx) => (
           <div
             key={tx.id}
-            className="rounded-xl border border-border/60 bg-card/40 p-4"
+            className="flex items-center gap-3 rounded-3xl bg-card px-3 py-3.5"
           >
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="font-medium leading-tight">{tx.merchant}</p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {formatDate(tx.date)}
-                  {tx.categories?.name ? ` · ${tx.categories.name}` : ""}
-                </p>
-                {tx.description ? (
-                  <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-                    {tx.description}
-                  </p>
-                ) : null}
-              </div>
-              <p className="shrink-0 text-base font-semibold tabular-nums">
-                {formatMoney(Number(tx.amount), tx.currency)}
+            <div
+              className="flex size-11 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-primary-foreground"
+              style={{
+                backgroundColor: tx.categories?.color ?? "var(--primary)",
+              }}
+            >
+              {initial(tx.merchant)}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-medium leading-tight">{tx.merchant}</p>
+              <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                {formatDate(tx.date)}
+                {tx.categories?.name ? ` · ${tx.categories.name}` : ""}
               </p>
             </div>
-            <div className="mt-3 flex items-center justify-between gap-2">
-              {tx.necessity ? (
-                <Badge variant="secondary">
-                  {necessityLabel(tx.necessity)}
-                </Badge>
-              ) : (
-                <span />
-              )}
-              <div className="inline-flex items-center">
+            <div className="shrink-0 text-right">
+              <p className="font-semibold tabular-nums text-expense">
+                −{formatMoney(Number(tx.amount), tx.currency)}
+              </p>
+              <div className="mt-1 flex justify-end gap-0.5">
                 <Link
                   href={`/transactions/${tx.id}/edit`}
                   aria-label="Bearbeiten"
                   className={cn(
-                    buttonVariants({ variant: "ghost", size: "icon" }),
-                    "size-11"
+                    buttonVariants({ variant: "ghost", size: "icon-sm" })
                   )}
                 >
-                  <Pencil className="size-4" />
+                  <Pencil className="size-3.5" />
                 </Link>
                 <DeleteTransactionButton id={tx.id} />
               </div>
@@ -94,10 +91,10 @@ export function TransactionsTable({
         ))}
       </div>
 
-      <div className="hidden overflow-hidden rounded-xl border border-border/60 md:block">
+      <div className="hidden overflow-hidden rounded-3xl bg-card md:block">
         <Table>
           <TableHeader>
-            <TableRow>
+            <TableRow className="border-white/5 hover:bg-transparent">
               <TableHead>Datum</TableHead>
               <TableHead>Händler</TableHead>
               <TableHead>Kategorie</TableHead>
@@ -108,14 +105,26 @@ export function TransactionsTable({
           </TableHeader>
           <TableBody>
             {transactions.map((tx) => (
-              <TableRow key={tx.id}>
-                <TableCell className="whitespace-nowrap">
+              <TableRow key={tx.id} className="border-white/5">
+                <TableCell className="whitespace-nowrap text-muted-foreground">
                   {formatDate(tx.date)}
                 </TableCell>
                 <TableCell>
-                  <div className="font-medium">{tx.merchant}</div>
-                  <div className="line-clamp-1 text-xs text-muted-foreground">
-                    {tx.description}
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="flex size-9 items-center justify-center rounded-full text-xs font-semibold text-primary-foreground"
+                      style={{
+                        backgroundColor: tx.categories?.color ?? "var(--primary)",
+                      }}
+                    >
+                      {initial(tx.merchant)}
+                    </div>
+                    <div>
+                      <div className="font-medium">{tx.merchant}</div>
+                      <div className="line-clamp-1 text-xs text-muted-foreground">
+                        {tx.description}
+                      </div>
+                    </div>
                   </div>
                 </TableCell>
                 <TableCell>{tx.categories?.name ?? "—"}</TableCell>
@@ -128,8 +137,8 @@ export function TransactionsTable({
                     "—"
                   )}
                 </TableCell>
-                <TableCell className="text-right font-medium tabular-nums">
-                  {formatMoney(Number(tx.amount), tx.currency)}
+                <TableCell className="text-right font-semibold tabular-nums text-expense">
+                  −{formatMoney(Number(tx.amount), tx.currency)}
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="inline-flex items-center">

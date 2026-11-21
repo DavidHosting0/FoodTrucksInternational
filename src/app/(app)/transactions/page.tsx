@@ -49,22 +49,23 @@ export default async function TransactionsPage({
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div className="space-y-5">
+      <div className="flex items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
-            Transaktionen
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Alle Ausgaben durchsuchen, filtern und bearbeiten.
+          <h1 className="text-3xl font-semibold tracking-tight">Payments</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {transactions.length} Transaktionen
           </p>
         </div>
-        <Link href="/transactions/new" className={cn(buttonVariants())}>
+        <Link
+          href="/transactions/new"
+          className={cn(buttonVariants(), "hidden sm:inline-flex")}
+        >
           Neue Ausgabe
         </Link>
       </div>
 
-      <Suspense fallback={<Skeleton className="h-28 w-full" />}>
+      <Suspense fallback={<Skeleton className="h-14 w-full rounded-3xl" />}>
         <TransactionFilters categories={categories} />
       </Suspense>
 

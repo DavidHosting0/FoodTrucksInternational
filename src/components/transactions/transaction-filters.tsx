@@ -10,9 +10,8 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const selectClass = cn(
-  "flex h-11 w-full rounded-lg border border-input bg-transparent px-3 py-1 text-base sm:h-9 sm:text-sm",
-  "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 outline-none",
-  "dark:bg-input/30"
+  "flex h-12 w-full rounded-2xl border border-transparent bg-secondary px-4 text-base outline-none sm:h-11 sm:text-sm",
+  "focus-visible:border-primary/40 focus-visible:ring-3 focus-visible:ring-primary/20"
 );
 
 export function TransactionFilters({ categories }: { categories: Category[] }) {
@@ -45,10 +44,10 @@ export function TransactionFilters({ categories }: { categories: Category[] }) {
   }
 
   return (
-    <div className="rounded-xl border border-border/60 bg-card/40">
+    <div className="rounded-3xl bg-card">
       <button
         type="button"
-        className="flex min-h-11 w-full items-center justify-between gap-2 px-4 py-3 text-sm font-medium md:hidden"
+        className="flex min-h-12 w-full items-center justify-between gap-2 px-4 py-3 text-sm font-medium md:hidden"
         onClick={() => setOpen((v) => !v)}
       >
         <span className="inline-flex items-center gap-2">
@@ -72,7 +71,6 @@ export function TransactionFilters({ categories }: { categories: Category[] }) {
             name="q"
             placeholder="Händler, Beschreibung…"
             defaultValue={searchParams.get("q") ?? ""}
-            className="h-11 text-base sm:h-9 sm:text-sm"
           />
         </div>
         <div className="space-y-1.5">
@@ -98,7 +96,6 @@ export function TransactionFilters({ categories }: { categories: Category[] }) {
             name="from"
             type="date"
             defaultValue={searchParams.get("from") ?? ""}
-            className="h-11 text-base sm:h-9 sm:text-sm"
           />
         </div>
         <div className="space-y-1.5">
@@ -108,17 +105,15 @@ export function TransactionFilters({ categories }: { categories: Category[] }) {
             name="to"
             type="date"
             defaultValue={searchParams.get("to") ?? ""}
-            className="h-11 text-base sm:h-9 sm:text-sm"
           />
         </div>
         <div className="flex items-end gap-2 md:col-span-5">
-          <Button type="submit" disabled={pending} className="h-11 sm:h-9">
+          <Button type="submit" disabled={pending}>
             {pending ? "Filter…" : "Filtern"}
           </Button>
           <Button
             type="button"
             variant="ghost"
-            className="h-11 sm:h-9"
             onClick={() => startTransition(() => router.push("/transactions"))}
           >
             Zurücksetzen

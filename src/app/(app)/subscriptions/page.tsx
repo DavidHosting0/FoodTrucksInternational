@@ -11,11 +11,11 @@ export default async function SubscriptionsPage() {
   ]);
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="mx-auto max-w-xl space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Abonnements</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">Abos</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Wiederkehrende Kosten im Blick – inkl. Jahreshochrechnung.
+          Wiederkehrende Kosten
         </p>
       </div>
       <SubscriptionsManager

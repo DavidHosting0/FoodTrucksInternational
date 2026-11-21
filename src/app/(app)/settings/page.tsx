@@ -8,29 +8,29 @@ export default async function SettingsPage() {
   const session = isDemoMode() ? null : await auth();
 
   return (
-    <div className="mx-auto max-w-xl space-y-6">
+    <div className="mx-auto max-w-xl space-y-5">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Einstellungen</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">Profile</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Konto, Darstellung und Abmelden.
+          Konto & Darstellung
         </p>
       </div>
 
-      <section className="rounded-xl border border-border/60 p-4">
-        <h2 className="font-medium">Konto</h2>
+      <section className="rounded-3xl bg-card p-5">
+        <h2 className="text-sm font-medium text-muted-foreground">Konto</h2>
         {isDemoMode() ? (
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-3 text-sm text-muted-foreground">
             Demo-Modus aktiv – kein echtes Konto.
           </p>
         ) : (
-          <dl className="mt-3 space-y-2 text-sm">
+          <dl className="mt-4 space-y-3 text-sm">
             <div className="flex justify-between gap-4">
               <dt className="text-muted-foreground">E-Mail</dt>
-              <dd>{session?.user?.email ?? "—"}</dd>
+              <dd className="font-medium">{session?.user?.email ?? "—"}</dd>
             </div>
             <div className="flex justify-between gap-4">
               <dt className="text-muted-foreground">Name</dt>
-              <dd>{session?.user?.name ?? "—"}</dd>
+              <dd className="font-medium">{session?.user?.name ?? "—"}</dd>
             </div>
           </dl>
         )}
@@ -38,23 +38,23 @@ export default async function SettingsPage() {
 
       {!isDemoMode() ? <PasswordForm /> : null}
 
-      <section className="rounded-xl border border-border/60 p-4">
-        <h2 className="font-medium">Darstellung</h2>
-        <div className="mt-3">
+      <section className="rounded-3xl bg-card p-5">
+        <h2 className="text-sm font-medium text-muted-foreground">Darstellung</h2>
+        <div className="mt-4">
           <ThemeToggle />
         </div>
       </section>
 
-      <section className="rounded-xl border border-border/60 p-4">
-        <h2 className="mb-2 font-medium">Sitzung</h2>
+      <section className="rounded-3xl bg-card p-5">
+        <h2 className="mb-3 text-sm font-medium text-muted-foreground">Sitzung</h2>
         <SignOutButton />
       </section>
 
-      <section className="rounded-xl border border-dashed border-border/60 p-4 text-sm text-muted-foreground">
+      <section className="rounded-3xl bg-secondary/60 p-5 text-sm text-muted-foreground">
         <p className="font-medium text-foreground">Handy-Installation</p>
         <p className="mt-1">
-          Unter iOS: Teilen → „Zum Home-Bildschirm“. Unter Android: Menü →
-          „App installieren“ / „Zum Startbildschirm“. HTTPS auf dem Server nötig.
+          iOS: Teilen → „Zum Home-Bildschirm“. Android: Menü → „App
+          installieren“. Für echte PWA später HTTPS nutzen.
         </p>
       </section>
     </div>

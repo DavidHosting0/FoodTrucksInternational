@@ -11,7 +11,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <div className="flex min-w-0 flex-1 flex-col">
         <DemoBanner />
         <MobileNav />
-        <main className="flex-1 overflow-y-auto p-4 pb-24 md:p-6 lg:p-8 lg:pb-8">
+        <main className="mx-auto w-full max-w-3xl flex-1 overflow-y-auto px-4 pb-28 pt-2 md:px-6 lg:max-w-5xl lg:px-8 lg:pb-10 lg:pt-6">
           {children}
         </main>
         <MobileBottomNav />

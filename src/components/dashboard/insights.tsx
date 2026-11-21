@@ -1,36 +1,20 @@
-import { Lightbulb } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-
 export function InsightsList({ insights }: { insights: string[] }) {
+  if (insights.length === 0) return null;
+
   return (
-    <Card className="border-border/60 bg-card/60">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Lightbulb className="size-4 text-primary" />
-          Intelligente Hinweise
-        </CardTitle>
-        <CardDescription>
-          Abgeleitet aus deinen erfassten Transaktionen
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ul className="space-y-3">
-          {insights.map((insight) => (
-            <li
-              key={insight}
-              className="rounded-lg border border-border/50 bg-muted/30 px-3 py-2 text-sm leading-relaxed"
-            >
-              {insight}
-            </li>
-          ))}
-        </ul>
-      </CardContent>
-    </Card>
+    <section className="space-y-3">
+      <h2 className="px-1 text-sm font-semibold tracking-tight">Hinweise</h2>
+      <ul className="space-y-2">
+        {insights.map((insight, index) => (
+          <li
+            key={insight}
+            className="rounded-3xl bg-card px-4 py-3.5 text-sm leading-relaxed text-muted-foreground"
+            style={{ animationDelay: `${160 + index * 40}ms` }}
+          >
+            <span className="text-foreground">{insight}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }

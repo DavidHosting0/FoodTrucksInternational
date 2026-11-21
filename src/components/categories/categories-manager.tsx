@@ -22,10 +22,10 @@ export function CategoriesManager({ categories }: { categories: Category[] }) {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <form
         action={createAction}
-        className="grid gap-3 rounded-xl border border-border/60 bg-card/40 p-4 sm:grid-cols-[1fr_auto_auto]"
+        className="grid gap-3 rounded-3xl bg-card p-4 sm:grid-cols-[1fr_auto_auto]"
       >
         {createState.error ? (
           <Alert variant="destructive" className="sm:col-span-3">
@@ -37,20 +37,26 @@ export function CategoriesManager({ categories }: { categories: Category[] }) {
         ) : null}
         <div className="space-y-1.5">
           <Label htmlFor="name">Neue Kategorie</Label>
-          <Input id="name" name="name" required placeholder="Name" className="h-11" />
+          <Input id="name" name="name" required placeholder="Name" />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="color">Farbe</Label>
-          <Input id="color" name="color" type="color" defaultValue="#94a3b8" className="h-11 w-full min-w-16 p-1" />
+          <Input
+            id="color"
+            name="color"
+            type="color"
+            defaultValue="#22c55e"
+            className="h-12 w-full min-w-16 p-1"
+          />
         </div>
         <div className="flex items-end">
-          <Button type="submit" disabled={createPending} className="h-11 w-full">
+          <Button type="submit" disabled={createPending} className="w-full">
             Hinzufügen
           </Button>
         </div>
       </form>
 
-      <ul className="space-y-3">
+      <ul className="space-y-2">
         {categories.map((cat) => (
           <CategoryRow key={cat.id} category={cat} />
         ))}
@@ -64,8 +70,11 @@ function CategoryRow({ category }: { category: Category }) {
   const [state, action, pending] = useActionState(boundUpdate, initial);
 
   return (
-    <li className="rounded-xl border border-border/60 p-4">
-      <form action={action} className="grid gap-3 sm:grid-cols-[1fr_auto_auto_auto] sm:items-end">
+    <li className="rounded-3xl bg-card p-4">
+      <form
+        action={action}
+        className="grid gap-3 sm:grid-cols-[1fr_auto_auto_auto] sm:items-end"
+      >
         {state.error ? (
           <Alert variant="destructive" className="sm:col-span-4">
             <AlertDescription>{state.error}</AlertDescription>
@@ -78,7 +87,6 @@ function CategoryRow({ category }: { category: Category }) {
             name="name"
             defaultValue={category.name}
             required
-            className="h-11"
           />
         </div>
         <div className="space-y-1.5">
@@ -88,23 +96,23 @@ function CategoryRow({ category }: { category: Category }) {
             name="color"
             type="color"
             defaultValue={category.color ?? "#94a3b8"}
-            className="h-11 w-full min-w-16 p-1"
+            className="h-12 w-full min-w-16 p-1"
           />
         </div>
-        <Button type="submit" variant="secondary" disabled={pending} className="h-11">
+        <Button type="submit" variant="secondary" disabled={pending}>
           Speichern
         </Button>
         {!category.is_default ? (
           <Button
             type="button"
             variant="ghost"
-            className="h-11 text-destructive"
+            className="text-destructive"
             onClick={() => deleteCategoryAction(category.id)}
           >
             Löschen
           </Button>
         ) : (
-          <p className="pb-2 text-xs text-muted-foreground">Standard</p>
+          <p className="pb-3 text-xs text-muted-foreground">Standard</p>
         )}
       </form>
     </li>

@@ -1,47 +1,37 @@
 import { FileDown } from "lucide-react";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 export default function ReportsPage() {
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="mx-auto max-w-xl space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Reports</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Exporte für Backup, Steuer oder Auswertung.
-        </p>
+        <h1 className="text-3xl font-semibold tracking-tight">Reports</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Export & Backup</p>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         <a
           href="/api/reports/csv"
-          className={cn(
-            buttonVariants({ variant: "secondary" }),
-            "flex h-14 w-full items-center justify-between px-4"
-          )}
+          className="flex h-16 w-full items-center justify-between rounded-3xl bg-card px-5 transition-transform active:scale-[0.99]"
         >
           <span className="text-left">
             <span className="block font-medium">CSV-Export</span>
             <span className="block text-xs text-muted-foreground">
-              Alle Transaktionen als Tabelle
+              Alle Transaktionen
             </span>
           </span>
-          <FileDown className="size-5" />
+          <FileDown className="size-5 text-primary" />
         </a>
         <a
           href="/api/reports/pdf"
-          className={cn(
-            buttonVariants({ variant: "secondary" }),
-            "flex h-14 w-full items-center justify-between px-4"
-          )}
+          className="flex h-16 w-full items-center justify-between rounded-3xl bg-card px-5 transition-transform active:scale-[0.99]"
         >
           <span className="text-left">
             <span className="block font-medium">PDF-Monatsreport</span>
             <span className="block text-xs text-muted-foreground">
-              Summen, Top-Kategorien, Top-Händler
+              Summen & Top-Listen
             </span>
           </span>
-          <FileDown className="size-5" />
+          <FileDown className="size-5 text-primary" />
         </a>
       </div>
     </div>

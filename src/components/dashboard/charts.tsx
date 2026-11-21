@@ -40,7 +40,7 @@ export function DashboardCharts({ metrics }: { metrics: DashboardMetrics }) {
 
   if (!hasData && metrics.monthlyTrend.every((m) => m.total === 0)) {
     return (
-      <Card className="border-dashed">
+      <Card>
         <CardHeader>
           <CardTitle>Visualisierungen</CardTitle>
           <CardDescription>
@@ -52,13 +52,13 @@ export function DashboardCharts({ metrics }: { metrics: DashboardMetrics }) {
   }
 
   return (
-    <div className="grid gap-4 xl:grid-cols-2">
-      <Card className="border-border/60 bg-card/60 xl:col-span-2">
+    <div className="grid gap-3 xl:grid-cols-2">
+      <Card className="xl:col-span-2">
         <CardHeader>
-          <CardTitle>Ausgabenentwicklung (12 Monate)</CardTitle>
-          <CardDescription>Monatliche Gesamtsumme</CardDescription>
+          <CardTitle>Ausgabenentwicklung</CardTitle>
+          <CardDescription>Letzte 12 Monate</CardDescription>
         </CardHeader>
-        <CardContent className="h-72">
+        <CardContent className="h-56 sm:h-64">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={metrics.monthlyTrend}>
               <defs>
@@ -87,12 +87,12 @@ export function DashboardCharts({ metrics }: { metrics: DashboardMetrics }) {
         </CardContent>
       </Card>
 
-      <Card className="border-border/60 bg-card/60">
+      <Card>
         <CardHeader>
-          <CardTitle>Ausgaben nach Kategorien</CardTitle>
-          <CardDescription>Aktueller Monat</CardDescription>
+          <CardTitle>Kategorien</CardTitle>
+          <CardDescription>Dieser Monat</CardDescription>
         </CardHeader>
-        <CardContent className="h-72">
+        <CardContent className="h-56 sm:h-64">
           {metrics.byCategory.length === 0 ? (
             <EmptyChart />
           ) : (
@@ -122,20 +122,20 @@ export function DashboardCharts({ metrics }: { metrics: DashboardMetrics }) {
         </CardContent>
       </Card>
 
-      <Card className="border-border/60 bg-card/60">
+      <Card>
         <CardHeader>
-          <CardTitle>Ausgaben nach Händlern</CardTitle>
-          <CardDescription>Top Händler diesen Monat</CardDescription>
+          <CardTitle>Top Händler</CardTitle>
+          <CardDescription>Dieser Monat</CardDescription>
         </CardHeader>
-        <CardContent className="h-72">
+        <CardContent className="h-56 sm:h-64">
           {metrics.byMerchant.length === 0 ? (
             <EmptyChart />
           ) : (
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={metrics.byMerchant} layout="vertical" margin={{ left: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis type="number" tickFormatter={moneyTick(metrics.currency)} />
-                <YAxis type="category" dataKey="name" width={90} tick={{ fontSize: 12 }} />
+              <BarChart data={metrics.byMerchant} layout="vertical" margin={{ left: 8 }}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" />
+                <XAxis type="number" tickFormatter={moneyTick(metrics.currency)} hide />
+                <YAxis type="category" dataKey="name" width={72} tick={{ fontSize: 11 }} />
                 <Tooltip
                   formatter={(value) =>
                     formatMoney(Number(value ?? 0), metrics.currency)
@@ -148,12 +148,12 @@ export function DashboardCharts({ metrics }: { metrics: DashboardMetrics }) {
         </CardContent>
       </Card>
 
-      <Card className="border-border/60 bg-card/60">
+      <Card>
         <CardHeader>
           <CardTitle>Monat vs. Vormonat</CardTitle>
-          <CardDescription>Gesamtausgaben im Vergleich</CardDescription>
+          <CardDescription>Vergleich</CardDescription>
         </CardHeader>
-        <CardContent className="h-72">
+        <CardContent className="h-56 sm:h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={comparison}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
@@ -170,17 +170,17 @@ export function DashboardCharts({ metrics }: { metrics: DashboardMetrics }) {
         </CardContent>
       </Card>
 
-      <Card className="border-border/60 bg-card/60">
+      <Card>
         <CardHeader>
-          <CardTitle>Vermeidbare Ausgaben</CardTitle>
-          <CardDescription>Optional / unnötig über 12 Monate</CardDescription>
+          <CardTitle>Vermeidbar</CardTitle>
+          <CardDescription>Optional / unnötig</CardDescription>
         </CardHeader>
-        <CardContent className="h-72">
+        <CardContent className="h-56 sm:h-64">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={metrics.avoidableTrend}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-              <XAxis dataKey="label" tick={{ fontSize: 12 }} />
-              <YAxis tickFormatter={moneyTick(metrics.currency)} width={70} />
+              <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" />
+              <XAxis dataKey="label" tick={{ fontSize: 11 }} />
+              <YAxis tickFormatter={moneyTick(metrics.currency)} width={56} />
               <Tooltip
                 formatter={(value) =>
                   formatMoney(Number(value ?? 0), metrics.currency)
@@ -189,8 +189,8 @@ export function DashboardCharts({ metrics }: { metrics: DashboardMetrics }) {
               <Area
                 type="monotone"
                 dataKey="total"
-                stroke="oklch(0.72 0.17 145)"
-                fill="oklch(0.72 0.17 145 / 0.25)"
+                stroke="var(--primary)"
+                fill="color-mix(in oklch, var(--primary) 25%, transparent)"
                 name="Vermeidbar"
               />
             </AreaChart>

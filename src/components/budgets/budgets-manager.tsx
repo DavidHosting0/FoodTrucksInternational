@@ -16,6 +16,8 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
 const initial: ActionState = {};
+const selectClass =
+  "flex h-12 w-full rounded-2xl border-0 bg-secondary px-4 text-base outline-none sm:text-sm";
 
 type BudgetWithSpend = Budget & {
   categories?: Category | null;
@@ -34,11 +36,8 @@ export function BudgetsManager({
   const [state, action, pending] = useActionState(saveBudgetAction, initial);
 
   return (
-    <div className="space-y-6">
-      <form
-        action={action}
-        className="grid gap-3 rounded-xl border border-border/60 bg-card/40 p-4 md:grid-cols-4"
-      >
+    <div className="space-y-5">
+      <form action={action} className="grid gap-3 rounded-3xl bg-card p-4 md:grid-cols-4">
         <input type="hidden" name="month" value={month} />
         {state.error ? (
           <Alert variant="destructive" className="md:col-span-4">
@@ -54,9 +53,7 @@ export function BudgetsManager({
             id="category_id"
             name="category_id"
             required
-            className={cn(
-              "flex h-11 w-full rounded-lg border border-input bg-transparent px-3 text-base sm:text-sm"
-            )}
+            className={selectClass}
             defaultValue=""
           >
             <option value="" disabled>
@@ -71,24 +68,11 @@ export function BudgetsManager({
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="amount">Budget</Label>
-          <Input
-            id="amount"
-            name="amount"
-            type="number"
-            min="0"
-            step="0.01"
-            required
-            className="h-11"
-          />
+          <Input id="amount" name="amount" type="number" min="0" step="0.01" required />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="currency">Währung</Label>
-          <select
-            id="currency"
-            name="currency"
-            defaultValue="CHF"
-            className="flex h-11 w-full rounded-lg border border-input bg-transparent px-3 text-base sm:text-sm"
-          >
+          <select id="currency" name="currency" defaultValue="CHF" className={selectClass}>
             {CURRENCIES.map((c) => (
               <option key={c} value={c}>
                 {c}
@@ -97,15 +81,15 @@ export function BudgetsManager({
           </select>
         </div>
         <div className="md:col-span-4">
-          <Button type="submit" disabled={pending} className="h-11 w-full sm:w-auto">
+          <Button type="submit" disabled={pending} className="w-full sm:w-auto">
             Budget speichern
           </Button>
         </div>
       </form>
 
-      <ul className="space-y-3">
+      <ul className="space-y-2">
         {budgets.length === 0 ? (
-          <li className="rounded-xl border border-dashed border-border/60 px-4 py-10 text-center text-sm text-muted-foreground">
+          <li className="rounded-3xl bg-card px-4 py-12 text-center text-sm text-muted-foreground">
             Noch keine Budgets für diesen Monat.
           </li>
         ) : (
@@ -116,16 +100,13 @@ export function BudgetsManager({
                 : 0;
             const over = budget.spent > Number(budget.amount);
             return (
-              <li
-                key={budget.id}
-                className="rounded-xl border border-border/60 p-4"
-              >
+              <li key={budget.id} className="rounded-3xl bg-card p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-medium">
                       {budget.categories?.name ?? "Kategorie"}
                     </p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="mt-1 text-sm text-muted-foreground">
                       {formatMoney(budget.spent, budget.currency)} von{" "}
                       {formatMoney(Number(budget.amount), budget.currency)}
                     </p>
@@ -139,7 +120,7 @@ export function BudgetsManager({
                     Löschen
                   </Button>
                 </div>
-                <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted">
+                <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-secondary">
                   <div
                     className={cn(
                       "h-full rounded-full transition-all",

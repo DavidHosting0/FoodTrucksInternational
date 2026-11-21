@@ -29,7 +29,7 @@ export function ReceiptsManager({
     <div className="space-y-6">
       <form
         action={action}
-        className="space-y-3 rounded-xl border border-border/60 bg-card/40 p-4"
+        className="space-y-3 rounded-3xl bg-card p-4"
       >
         {state.error ? (
           <Alert variant="destructive">
@@ -57,7 +57,7 @@ export function ReceiptsManager({
             id="transaction_id"
             name="transaction_id"
             defaultValue=""
-            className="flex h-11 w-full rounded-lg border border-input bg-transparent px-3"
+            className="flex h-12 w-full rounded-2xl border-0 bg-secondary px-4 text-sm"
           >
             <option value="">Später verknüpfen</option>
             {transactions.slice(0, 50).map((tx) => (
@@ -75,7 +75,7 @@ export function ReceiptsManager({
 
       <ul className="grid gap-3 sm:grid-cols-2">
         {receipts.length === 0 ? (
-          <li className="rounded-xl border border-dashed border-border/60 px-4 py-10 text-center text-sm text-muted-foreground sm:col-span-2">
+          <li className="rounded-3xl bg-card px-4 py-12 text-center text-sm text-muted-foreground sm:col-span-2">
             Noch keine Belege.
           </li>
         ) : (
@@ -106,7 +106,7 @@ function ReceiptCard({
   const isImage = receipt.file_type.startsWith("image/");
 
   return (
-    <li className="overflow-hidden rounded-xl border border-border/60">
+    <li className="overflow-hidden rounded-3xl bg-card">
       {isImage ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
@@ -138,7 +138,7 @@ function ReceiptCard({
           <select
             name="transaction_id"
             defaultValue={receipt.transaction_id ?? ""}
-            className="flex h-11 w-full rounded-lg border border-input bg-transparent px-3 text-sm"
+            className="flex h-12 w-full rounded-2xl border-0 bg-secondary px-4 text-sm"
           >
             <option value="">Keine Verknüpfung</option>
             {transactions.slice(0, 50).map((tx) => (
@@ -155,7 +155,7 @@ function ReceiptCard({
               href={href}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex h-11 flex-1 items-center justify-center rounded-lg border border-input text-sm"
+              className="inline-flex h-11 flex-1 items-center justify-center rounded-full bg-secondary text-sm"
             >
               Öffnen
             </a>

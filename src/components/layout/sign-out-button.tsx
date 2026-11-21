@@ -19,8 +19,8 @@ export function SignOutButton() {
     <form action={signOut}>
       <Button
         type="submit"
-        variant="ghost"
-        className="w-full justify-start gap-2 text-muted-foreground"
+        variant="secondary"
+        className="w-full justify-start gap-2"
       >
         <LogOut className="size-4" />
         Abmelden

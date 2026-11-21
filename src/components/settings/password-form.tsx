@@ -13,8 +13,8 @@ export function PasswordForm() {
   const [state, action, pending] = useActionState(changePassword, initial);
 
   return (
-    <form action={action} className="space-y-3 rounded-xl border border-border/60 p-4">
-      <h2 className="font-medium">Passwort ändern</h2>
+    <form action={action} className="space-y-3 rounded-3xl bg-card p-5">
+      <h2 className="text-sm font-medium text-muted-foreground">Passwort ändern</h2>
       {state.error ? (
         <Alert variant="destructive">
           <AlertDescription>{state.error}</AlertDescription>
@@ -30,7 +30,6 @@ export function PasswordForm() {
           name="currentPassword"
           type="password"
           required
-          className="h-11"
         />
       </div>
       <div className="space-y-1.5">
@@ -41,10 +40,9 @@ export function PasswordForm() {
           type="password"
           required
           minLength={6}
-          className="h-11"
         />
       </div>
-      <Button type="submit" disabled={pending} className="h-11 w-full sm:w-auto">
+      <Button type="submit" disabled={pending} className="w-full sm:w-auto">
         Speichern
       </Button>
     </form>

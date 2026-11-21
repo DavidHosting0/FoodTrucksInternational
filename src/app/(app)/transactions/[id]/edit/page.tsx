@@ -1,13 +1,6 @@
 import { notFound } from "next/navigation";
 import { getCategories, getTransactionById } from "@/lib/data/finance";
 import { TransactionForm } from "@/components/transactions/transaction-form";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 
 type Params = Promise<{ id: string }>;
 
@@ -27,28 +20,14 @@ export default async function EditTransactionPage({
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
-          Transaktion bearbeiten
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Änderungen werden sofort in Dashboard und Auswertungen berücksichtigt.
-        </p>
+    <div className="mx-auto max-w-xl space-y-6">
+      <div className="text-center sm:text-left">
+        <h1 className="text-3xl font-semibold tracking-tight">Bearbeiten</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{transaction.merchant}</p>
       </div>
-
-      <Card className="border-border/60 bg-card/60">
-        <CardHeader>
-          <CardTitle>Bearbeiten</CardTitle>
-          <CardDescription>{transaction.merchant}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <TransactionForm
-            categories={categories}
-            transaction={transaction}
-          />
-        </CardContent>
-      </Card>
+      <div className="rounded-3xl bg-card p-4 sm:p-6">
+        <TransactionForm categories={categories} transaction={transaction} />
+      </div>
     </div>
   );
 }

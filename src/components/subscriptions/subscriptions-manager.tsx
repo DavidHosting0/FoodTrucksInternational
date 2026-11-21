@@ -16,6 +16,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 const initial: ActionState = {};
+const selectClass =
+  "flex h-12 w-full rounded-2xl border-0 bg-secondary px-4 text-base outline-none sm:text-sm";
 
 function yearly(amount: number, interval: string) {
   if (interval === "monthly") return amount * 12;
@@ -40,17 +42,19 @@ export function SubscriptionsManager({
     .reduce((sum, s) => sum + yearly(Number(s.amount), s.interval), 0);
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-xl border border-border/60 bg-card/40 p-4">
-        <p className="text-sm text-muted-foreground">Aktive Abos / Jahr</p>
-        <p className="text-2xl font-semibold tabular-nums">
+    <div className="space-y-5">
+      <div className="rounded-3xl bg-card px-5 py-6 text-center">
+        <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
+          Aktive Abos / Jahr
+        </p>
+        <p className="mt-2 text-4xl font-semibold tabular-nums tracking-tight">
           {formatMoney(totalYearly, subscriptions[0]?.currency ?? "CHF")}
         </p>
       </div>
 
       <form
         action={action}
-        className="grid gap-3 rounded-xl border border-border/60 bg-card/40 p-4 md:grid-cols-2"
+        className="grid gap-3 rounded-3xl bg-card p-4 md:grid-cols-2"
       >
         {state.error ? (
           <Alert variant="destructive" className="md:col-span-2">
@@ -59,28 +63,15 @@ export function SubscriptionsManager({
         ) : null}
         <div className="space-y-1.5 md:col-span-2">
           <Label htmlFor="merchant">Name / Anbieter</Label>
-          <Input id="merchant" name="merchant" required className="h-11" />
+          <Input id="merchant" name="merchant" required />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="amount">Betrag</Label>
-          <Input
-            id="amount"
-            name="amount"
-            type="number"
-            min="0.01"
-            step="0.01"
-            required
-            className="h-11"
-          />
+          <Input id="amount" name="amount" type="number" min="0.01" step="0.01" required />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="currency">Währung</Label>
-          <select
-            id="currency"
-            name="currency"
-            defaultValue="CHF"
-            className="flex h-11 w-full rounded-lg border border-input bg-transparent px-3"
-          >
+          <select id="currency" name="currency" defaultValue="CHF" className={selectClass}>
             {CURRENCIES.map((c) => (
               <option key={c} value={c}>
                 {c}
@@ -90,12 +81,7 @@ export function SubscriptionsManager({
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="interval">Intervall</Label>
-          <select
-            id="interval"
-            name="interval"
-            defaultValue="monthly"
-            className="flex h-11 w-full rounded-lg border border-input bg-transparent px-3"
-          >
+          <select id="interval" name="interval" defaultValue="monthly" className={selectClass}>
             <option value="monthly">Monatlich</option>
             <option value="quarterly">Vierteljährlich</option>
             <option value="yearly">Jährlich</option>
@@ -103,12 +89,7 @@ export function SubscriptionsManager({
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="category_id">Kategorie</Label>
-          <select
-            id="category_id"
-            name="category_id"
-            defaultValue=""
-            className="flex h-11 w-full rounded-lg border border-input bg-transparent px-3"
-          >
+          <select id="category_id" name="category_id" defaultValue="" className={selectClass}>
             <option value="">—</option>
             {categories.map((c) => (
               <option key={c.id} value={c.id}>
@@ -119,12 +100,7 @@ export function SubscriptionsManager({
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="next_payment_date">Nächste Zahlung</Label>
-          <Input
-            id="next_payment_date"
-            name="next_payment_date"
-            type="date"
-            className="h-11"
-          />
+          <Input id="next_payment_date" name="next_payment_date" type="date" />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="cancellation_notice_days">Kündigungsfrist (Tage)</Label>
@@ -133,21 +109,20 @@ export function SubscriptionsManager({
             name="cancellation_notice_days"
             type="number"
             min="0"
-            className="h-11"
           />
         </div>
         <div className="md:col-span-2">
-          <Button type="submit" disabled={pending} className="h-11 w-full sm:w-auto">
+          <Button type="submit" disabled={pending} className="w-full sm:w-auto">
             Abo hinzufügen
           </Button>
         </div>
       </form>
 
-      <ul className="space-y-3">
+      <ul className="space-y-2">
         {subscriptions.map((sub) => (
           <li
             key={sub.id}
-            className="flex flex-col gap-3 rounded-xl border border-border/60 p-4 sm:flex-row sm:items-center sm:justify-between"
+            className="flex flex-col gap-3 rounded-3xl bg-card p-4 sm:flex-row sm:items-center sm:justify-between"
           >
             <div>
               <div className="flex flex-wrap items-center gap-2">

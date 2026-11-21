@@ -44,50 +44,45 @@ export default async function OptimizationPage() {
   );
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="mx-auto max-w-xl space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Cost Optimization
-          </h1>
+          <h1 className="text-3xl font-semibold tracking-tight">Optimize</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Heuristische Vorschläge aus Ausgaben und Abos.
+            Sparpotenziale aus deinen Daten
           </p>
         </div>
         <form action={refreshOptimizationAction}>
-          <Button type="submit" className="h-11 w-full sm:w-auto">
-            Neu analysieren & speichern
+          <Button type="submit" variant="secondary">
+            Neu analysieren
           </Button>
         </form>
       </div>
 
-      <div className="rounded-xl border border-border/60 bg-card/40 p-4">
-        <p className="text-sm text-muted-foreground">Geschätzte Jahresersparnis</p>
-        <p className="text-2xl font-semibold tabular-nums">
+      <div className="rounded-3xl bg-card px-5 py-6 text-center">
+        <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
+          Geschätzte Jahresersparnis
+        </p>
+        <p className="mt-2 text-4xl font-semibold tabular-nums tracking-tight text-primary">
           {formatMoney(totalYearly, currency)}
         </p>
       </div>
 
-      <ul className="space-y-3">
+      <ul className="space-y-2">
         {opportunities.length === 0 ? (
-          <li className="rounded-xl border border-dashed border-border/60 px-4 py-10 text-center text-sm text-muted-foreground">
-            Noch keine Vorschläge. Erfasse Ausgaben und Abos, dann analysieren.
+          <li className="rounded-3xl bg-card px-4 py-12 text-center text-sm text-muted-foreground">
+            Noch keine Vorschläge. Erfasse Ausgaben und Abos.
           </li>
         ) : (
           opportunities.map((item) => (
-            <li
-              key={item.id}
-              className="space-y-2 rounded-xl border border-border/60 p-4"
-            >
+            <li key={item.id} className="space-y-2 rounded-3xl bg-card p-4">
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="font-medium">{item.title}</h2>
-                <Badge variant="secondary">
-                  {priorityLabel[item.priority]}
-                </Badge>
+                <Badge variant="secondary">{priorityLabel[item.priority]}</Badge>
               </div>
               <p className="text-sm text-muted-foreground">{item.description}</p>
               <p className="text-sm">{item.suggested_action}</p>
-              <p className="text-sm tabular-nums">
+              <p className="text-sm font-semibold tabular-nums text-primary">
                 ~{formatMoney(Number(item.monthly_savings), currency)}/Monat ·{" "}
                 {formatMoney(Number(item.yearly_savings), currency)}/Jahr
               </p>

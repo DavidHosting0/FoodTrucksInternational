@@ -24,9 +24,8 @@ import { cn } from "@/lib/utils";
 const initialState: ActionState = {};
 
 const selectClass = cn(
-  "flex h-9 w-full rounded-lg border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors",
-  "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 outline-none",
-  "dark:bg-input/30"
+  "flex h-12 w-full rounded-2xl border border-transparent bg-secondary px-4 text-base transition-colors outline-none sm:text-sm",
+  "focus-visible:border-primary/40 focus-visible:ring-3 focus-visible:ring-primary/20"
 );
 
 type Props = {
@@ -267,12 +266,13 @@ export function TransactionForm({ categories, transaction }: Props) {
         </div>
       </section>
 
-      <div className="sticky bottom-20 z-10 -mx-1 border-t border-border/60 bg-background/95 p-3 backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none lg:bottom-0">
+      <div className="sticky bottom-24 z-10 -mx-1 bg-background/90 p-3 backdrop-blur sm:static sm:mx-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
         <div className="flex justify-end gap-3">
           <Button
             type="submit"
             disabled={pending}
-            className="h-11 w-full sm:w-auto"
+            size="lg"
+            className="w-full sm:w-auto"
           >
             {pending
               ? "Wird gespeichert…"
