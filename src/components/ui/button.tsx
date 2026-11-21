@@ -10,9 +10,9 @@ const buttonVariants = cva(
         default:
           "metal-chrome hover:brightness-105 active:brightness-95",
         outline:
-          "border-border bg-transparent hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-white/10 dark:hover:bg-white/5",
+          "glass-chip text-foreground hover:bg-white/10 aria-expanded:bg-white/10 dark:border-[rgba(180,255,210,0.12)]",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_6%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+          "glass-chip text-secondary-foreground hover:bg-white/10 aria-expanded:bg-white/10",
         ghost:
           "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-white/5",
         destructive:

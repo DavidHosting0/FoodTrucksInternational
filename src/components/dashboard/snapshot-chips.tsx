@@ -25,7 +25,7 @@ export function SnapshotChips({
         <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
           Budget
         </p>
-        <p className="mt-2 text-2xl font-semibold tabular-nums">
+        <p className="mt-2 text-2xl font-semibold tabular-nums text-primary">
           {budgetPct === null ? "—" : `${budgetPct}%`}
         </p>
         <p className="mt-1 text-xs text-muted-foreground">
@@ -55,7 +55,7 @@ export function SnapshotChips({
         <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
           Mehr
         </p>
-        <p className="metal-text mt-2 text-2xl font-semibold">Tipps</p>
+        <p className="mt-2 text-2xl font-semibold text-primary">Tipps</p>
         <p className="mt-1 text-xs text-muted-foreground">Optimize & Abos</p>
       </Link>
     </section>

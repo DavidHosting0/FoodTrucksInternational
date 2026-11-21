@@ -14,6 +14,7 @@ import { MonthPicker } from "@/components/budgets/month-picker";
 import { HeroBalance } from "@/components/dashboard/hero-balance";
 import { InsightsList } from "@/components/dashboard/insights";
 import { KpiCards } from "@/components/dashboard/kpi-cards";
+import { QuickActions } from "@/components/dashboard/quick-actions";
 import { SnapshotChips } from "@/components/dashboard/snapshot-chips";
 import { ReceiptCaptureFlow } from "@/components/receipts/receipt-capture-flow";
 import { SubscriptionsManager } from "@/components/subscriptions/subscriptions-manager";
@@ -51,6 +52,7 @@ export function OverviewSpace({
         currency={metrics.currency}
         delta={metrics.monthOverMonthDelta}
       />
+      <QuickActions />
       <SnapshotChips
         budgetPct={budgetPct}
         budgetSpent={budgetSpent}

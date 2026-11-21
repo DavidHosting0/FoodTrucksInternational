@@ -310,7 +310,7 @@ export function SpaceCarousel({ initialSpace, panels }: Props) {
         className="fixed inset-x-0 bottom-0 z-40 px-3 pb-safe lg:hidden"
         aria-label="Hauptnavigation"
       >
-        <div className="mx-auto mb-2 flex h-[4.25rem] max-w-lg items-stretch justify-around rounded-[1.75rem] bg-[#121814]/95 px-1 ring-1 ring-white/10 backdrop-blur-xl">
+        <div className="glass-nav mx-auto mb-2 flex h-[4.25rem] max-w-lg items-stretch justify-around rounded-[1.75rem] px-1">
           {HOME_SPACES.map((space, i) => {
             const Icon = tabIcon[space.id];
             const active = space.id === activeId;
@@ -325,17 +325,11 @@ export function SpaceCarousel({ initialSpace, panels }: Props) {
                   aria-current={active}
                   onClick={() => {
                     goToIndex(i);
-                    // Same user gesture → opens the system camera immediately.
                     openReceiptCamera();
                   }}
                   className="-mt-5 flex flex-col items-center justify-end pb-2 transition-transform active:scale-95"
                 >
-                  <span
-                    className={cn(
-                      "flex size-14 items-center justify-center rounded-full metal-fab",
-                      active && "ring-2 ring-white/30"
-                    )}
-                  >
+                  <span className="metal-fab flex size-14 items-center justify-center rounded-full">
                     <Icon className="size-7" strokeWidth={2.5} />
                   </span>
                 </button>

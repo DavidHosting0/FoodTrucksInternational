@@ -1,7 +1,6 @@
 import type { DashboardMetrics } from "@/lib/analytics/dashboard";
 import { formatMoney } from "@/lib/format";
 
-/** Compact metric strip — replaces the old 6-card dashboard grid. */
 export function KpiCards({ metrics }: { metrics: DashboardMetrics }) {
   const items = [
     {

@@ -31,6 +31,7 @@ export function QuickActions() {
     <section className="animate-hero-in flex justify-center gap-5 px-2 [animation-delay:80ms]">
       {actions.map((action) => {
         const Icon = action.icon;
+        const primary = "primary" in action && action.primary;
         return (
           <Link
             key={action.href}
@@ -40,12 +41,12 @@ export function QuickActions() {
             <span
               className={cn(
                 "flex size-14 items-center justify-center rounded-full",
-                "primary" in action && action.primary
+                primary
                   ? "metal-fab"
-                  : "metal-surface text-foreground"
+                  : "glass-chip text-foreground"
               )}
             >
-              <Icon className="size-6" strokeWidth={2.25} />
+              <Icon className="size-6" strokeWidth={2.1} />
             </span>
             <span className="text-[11px] font-medium text-muted-foreground">
               {action.label}
