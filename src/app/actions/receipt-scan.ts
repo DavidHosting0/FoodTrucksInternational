@@ -181,10 +181,15 @@ export async function scanReceiptAction(
       ocrText,
     };
   } catch (error) {
-    return {
-      error:
-        error instanceof Error ? error.message : "Beleg-Scan fehlgeschlagen",
-    };
+    const message =
+      error instanceof Error ? error.message : "Beleg-Scan fehlgeschlagen";
+    if (message.includes("OPENAI_API_KEY")) {
+      return { error: "OpenAI API-Key fehlt auf dem Server (.env.local)." };
+    }
+    if (message.includes("Body exceeded") || message.includes("413")) {
+      return { error: "Foto zu groß für den Upload. Bitte erneut versuchen." };
+    }
+    return { error: message.slice(0, 280) };
   }
 }
 

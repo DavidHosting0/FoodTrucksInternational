@@ -11,6 +11,7 @@ import {
   type ConfirmReceiptState,
   type ScanReceiptState,
 } from "@/app/actions/receipt-scan";
+import { compressImageForUpload } from "@/lib/images/compress-image";
 import type { SplitData } from "@/lib/validations/split";
 import { ReceiptReview } from "@/components/receipts/receipt-review";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -106,20 +107,32 @@ export function ReceiptCaptureFlow({
   const runScan = (file: File) => {
     setScanError(null);
     setPhase("scanning");
-    const fd = new FormData();
-    fd.set("file", file);
 
     startScan(async () => {
-      const result: ScanReceiptState = await scanReceiptAction({}, fd);
-      if (result.error || !result.draft || !result.scanId) {
-        setScanError(result.error ?? "Scan fehlgeschlagen");
+      try {
+        const uploadFile = await compressImageForUpload(file);
+        const fd = new FormData();
+        fd.set("file", uploadFile);
+        const result: ScanReceiptState = await scanReceiptAction({}, fd);
+        if (result.error || !result.draft || !result.scanId) {
+          setScanError(result.error ?? "Scan fehlgeschlagen");
+          setPhase("capture");
+          return;
+        }
+        setDraft(result.draft);
+        setScanId(result.scanId);
+        setPreviewUrl(result.previewUrl ?? null);
+        setPhase("review");
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Scan fehlgeschlagen";
+        setScanError(
+          message.includes("Body exceeded") || message.includes("413")
+            ? "Foto zu groß — bitte näher ran oder erneut versuchen."
+            : message
+        );
         setPhase("capture");
-        return;
       }
-      setDraft(result.draft);
-      setScanId(result.scanId);
-      setPreviewUrl(result.previewUrl ?? null);
-      setPhase("review");
     });
   };
 

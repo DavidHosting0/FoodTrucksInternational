@@ -48,6 +48,8 @@ export type SplitItem = z.infer<typeof splitItemSchema>;
 export type SplitData = z.infer<typeof splitDataSchema>;
 
 /** OpenAI parse output before assignments are applied. */
+const looseNumber = z.coerce.number().finite();
+
 export const parsedReceiptSchema = z.object({
   merchant: z.string().min(1).default("Unbekannt"),
   datetime: z.string().nullable().optional(),
@@ -57,14 +59,14 @@ export const parsedReceiptSchema = z.object({
   payment_last4: z.string().nullable().optional(),
   payment_method: z.string().nullable().optional(),
   currency: z.enum(["CHF", "EUR", "USD"]).catch("CHF"),
-  total: z.number().nonnegative().nullable().optional(),
+  total: looseNumber.nonnegative().nullable().optional(),
   items: z
     .array(
       z.object({
         name: z.string().min(1),
-        quantity: z.number().positive().default(1),
-        unit_price: z.number().nonnegative(),
-        line_total: z.number().nonnegative().optional(),
+        quantity: looseNumber.positive().default(1),
+        unit_price: looseNumber.nonnegative(),
+        line_total: looseNumber.nonnegative().optional(),
       })
     )
     .default([]),
