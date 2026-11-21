@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import {
+  buildMonthTipsOverview,
   getCategories,
-  getExpenseTipsReport,
   getHouseholdBudget,
   getRecurringExpenses,
   getSavingsOpportunities,
@@ -34,21 +34,15 @@ export default async function DashboardPage({
   const params = await searchParams;
   const month = params.month ?? format(new Date(), "yyyy-MM");
 
-  const [
-    transactions,
-    householdBudget,
-    subscriptions,
-    categories,
-    stored,
-    tipsReport,
-  ] = await Promise.all([
-    getTransactions(),
-    getHouseholdBudget(month),
-    getRecurringExpenses(),
-    getCategories(),
-    getSavingsOpportunities(),
-    getExpenseTipsReport(month),
-  ]);
+  const [transactions, householdBudget, subscriptions, categories, stored] =
+    await Promise.all([
+      getTransactions(),
+      getHouseholdBudget(month),
+      getRecurringExpenses(),
+      getCategories(),
+      getSavingsOpportunities(),
+    ]);
+  const tipsOverview = buildMonthTipsOverview(transactions, month);
 
   const metrics = computeDashboardMetrics(transactions);
   const personTotals = monthPersonTotals(transactions, month);
@@ -127,8 +121,12 @@ export default async function DashboardPage({
         tips: (
           <TipsSpace
             month={month}
-            report={tipsReport}
+            tips={tipsOverview.tips}
             currency={currency}
+            estimatedSavings={tipsOverview.estimated_monthly_savings}
+            pendingCount={tipsOverview.pending_count}
+            evaluatedCount={tipsOverview.evaluated_count}
+            totalCount={tipsOverview.total_count}
           />
         ),
         more: (

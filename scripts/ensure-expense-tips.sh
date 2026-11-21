@@ -18,5 +18,10 @@ CREATE TABLE IF NOT EXISTS expense_tips_reports (
 );
 CREATE UNIQUE INDEX IF NOT EXISTS expense_tips_reports_user_month_idx
   ON expense_tips_reports (user_id, month);
+
+ALTER TABLE transactions
+  ADD COLUMN IF NOT EXISTS ai_tips jsonb;
+ALTER TABLE transactions
+  ADD COLUMN IF NOT EXISTS ai_tips_status text;
 SQL
 echo EXPENSE_TIPS_OK

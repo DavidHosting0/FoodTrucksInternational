@@ -9,12 +9,6 @@ function initial(merchant: string) {
   return merchant.trim().charAt(0).toUpperCase() || "?";
 }
 
-function necessityLabel(value: TransactionWithCategory["necessity"]) {
-  if (value === "unnecessary") return "Unnötig";
-  if (value === "optional") return "Optional";
-  return null;
-}
-
 export function TransactionsTable({
   transactions,
 }: {
@@ -41,7 +35,10 @@ export function TransactionsTable({
     <ul className="space-y-2">
       {transactions.map((tx) => {
         const share = transactionPersonShare(tx);
-        const flag = necessityLabel(tx.necessity);
+        const tipCount = tx.ai_tips?.length ?? 0;
+        const hasWaste = (tx.ai_tips ?? []).some(
+          (tip) => tip.severity === "unnecessary" || tip.tip_severity === "waste"
+        );
         return (
           <li key={tx.id}>
             <Link
@@ -62,16 +59,20 @@ export function TransactionsTable({
                     <p className="truncate font-medium leading-tight">
                       {tx.merchant}
                     </p>
-                    {flag ? (
+                    {tipCount > 0 ? (
                       <span
                         className={cn(
                           "mt-1 inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold",
-                          tx.necessity === "unnecessary"
+                          hasWaste
                             ? "bg-destructive/15 text-destructive"
-                            : "bg-white/10 text-muted-foreground"
+                            : "bg-primary/15 text-primary"
                         )}
                       >
-                        {flag}
+                        {tipCount === 1 ? "1 Tipp" : `${tipCount} Tipps`}
+                      </span>
+                    ) : tx.ai_tips_status === "pending" ? (
+                      <span className="mt-1 inline-flex rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                        Bewertung…
                       </span>
                     ) : null}
                   </div>

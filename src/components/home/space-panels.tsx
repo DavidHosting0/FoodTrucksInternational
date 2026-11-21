@@ -4,7 +4,7 @@ import type { DashboardMetrics } from "@/lib/analytics/dashboard";
 import { formatMoney } from "@/lib/format";
 import type {
   Category,
-  ExpenseTipsReport,
+  ExpenseTip,
   RecurringExpense,
   SavingsOpportunity,
   TransactionWithCategory,
@@ -125,12 +125,20 @@ export function CaptureSpace({ categories }: { categories: Category[] }) {
 
 export function TipsSpace({
   month,
-  report,
+  tips,
   currency,
+  estimatedSavings,
+  pendingCount,
+  evaluatedCount,
+  totalCount,
 }: {
   month: string;
-  report: ExpenseTipsReport | null;
+  tips: ExpenseTip[];
   currency: string;
+  estimatedSavings: number;
+  pendingCount: number;
+  evaluatedCount: number;
+  totalCount: number;
 }) {
   return (
     <div className="space-y-5 pb-4 pt-2">
@@ -138,12 +146,20 @@ export function TipsSpace({
         <div>
           <h2 className="text-2xl font-semibold tracking-tight">Tipps</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            AI bewertet Ausgaben & Artikel
+            AI roastet Belege & Artikel
           </p>
         </div>
         <MonthPicker month={month} />
       </div>
-      <ExpenseTipsPanel month={month} report={report} currency={currency} />
+      <ExpenseTipsPanel
+        month={month}
+        tips={tips}
+        currency={currency}
+        estimatedSavings={estimatedSavings}
+        pendingCount={pendingCount}
+        evaluatedCount={evaluatedCount}
+        totalCount={totalCount}
+      />
     </div>
   );
 }

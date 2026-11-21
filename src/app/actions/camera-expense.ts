@@ -83,7 +83,32 @@ export async function createExpenseWithReceipt(
       purchase_type: "spontaneous",
       satisfaction: null,
       split_data: null,
+      ai_tips: null,
+      ai_tips_status: "pending",
     });
+
+    try {
+      const { analyzeReceiptTipsWithOpenAI } = await import(
+        "@/lib/ai/expense-tips"
+      );
+      const { updateTransactionAiTips } = await import("@/lib/data/finance");
+      const analysis = await analyzeReceiptTipsWithOpenAI({
+        transactionId: tx.id,
+        merchant: data.merchant,
+        date: data.date,
+        total: data.amount,
+        currency: data.currency,
+        items: undefined,
+      });
+      await updateTransactionAiTips(tx.id, analysis.tips, "done");
+    } catch {
+      try {
+        const { updateTransactionAiTips } = await import("@/lib/data/finance");
+        await updateTransactionAiTips(tx.id, [], "error");
+      } catch {
+        /* Tipps optional */
+      }
+    }
 
     if (!isDemoMode()) {
       const buffer = Buffer.from(await file.arrayBuffer());

@@ -82,6 +82,8 @@ export const transactions = pgTable("transactions", {
   purchaseType: text("purchase_type"),
   satisfaction: text("satisfaction"),
   splitData: jsonb("split_data"),
+  aiTips: jsonb("ai_tips"),
+  aiTipsStatus: text("ai_tips_status"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

@@ -1,6 +1,7 @@
 import type {
   Budget,
   Category,
+  ExpenseTip,
   Receipt,
   ReceiptSplitData,
   RecurringExpense,
@@ -58,6 +59,8 @@ export function mapTransaction(
     purchase_type: row.purchaseType as Transaction["purchase_type"],
     satisfaction: row.satisfaction as Transaction["satisfaction"],
     split_data: (row.splitData as ReceiptSplitData | null) ?? null,
+    ai_tips: Array.isArray(row.aiTips) ? (row.aiTips as ExpenseTip[]) : null,
+    ai_tips_status: (row.aiTipsStatus as Transaction["ai_tips_status"]) ?? null,
     created_at: row.createdAt.toISOString(),
     updated_at: row.updatedAt.toISOString(),
   };

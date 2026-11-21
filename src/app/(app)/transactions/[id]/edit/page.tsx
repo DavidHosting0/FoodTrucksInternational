@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getCategories, getTransactionById } from "@/lib/data/finance";
+import { ReceiptTipsCard } from "@/components/tips/receipt-tips-card";
 import { TransactionForm } from "@/components/transactions/transaction-form";
 
 type Params = Promise<{ id: string }>;
@@ -25,6 +26,11 @@ export default async function EditTransactionPage({
         <h1 className="text-3xl font-semibold tracking-tight">Bearbeiten</h1>
         <p className="mt-1 text-sm text-muted-foreground">{transaction.merchant}</p>
       </div>
+      <ReceiptTipsCard
+        tips={transaction.ai_tips}
+        currency={transaction.currency}
+        status={transaction.ai_tips_status}
+      />
       <div className="rounded-3xl bg-card p-4 sm:p-6">
         <TransactionForm categories={categories} transaction={transaction} />
       </div>

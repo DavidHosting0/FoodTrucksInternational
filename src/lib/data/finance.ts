@@ -140,6 +140,8 @@ export async function insertTransaction(
       purchaseType: payload.purchase_type,
       satisfaction: payload.satisfaction,
       splitData: payload.split_data ?? null,
+      aiTips: payload.ai_tips ?? null,
+      aiTipsStatus: payload.ai_tips_status ?? null,
     })
     .returning();
 
@@ -179,6 +181,8 @@ export async function patchTransaction(
       purchaseType: payload.purchase_type,
       satisfaction: payload.satisfaction,
       splitData: payload.split_data ?? null,
+      aiTips: payload.ai_tips ?? null,
+      aiTipsStatus: payload.ai_tips_status ?? null,
       updatedAt: new Date(),
     })
     .where(and(eq(transactions.id, id), eq(transactions.userId, userId)))
@@ -186,6 +190,43 @@ export async function patchTransaction(
 
   if (!row) throw new Error("Transaktion nicht gefunden");
   return mapTransaction(row) as Transaction;
+}
+
+export async function updateTransactionAiTips(
+  id: string,
+  tips: ExpenseTip[],
+  status: "pending" | "done" | "error"
+) {
+  if (isDemoMode()) {
+    const existing = getDemoTransaction(id);
+    if (!existing) return null;
+    const {
+      id: _id,
+      user_id: _userId,
+      created_at: _created,
+      updated_at: _updated,
+      ...rest
+    } = existing;
+    return updateDemoTransaction(id, {
+      ...rest,
+      ai_tips: tips,
+      ai_tips_status: status,
+    });
+  }
+
+  const db = getDb();
+  const userId = await requireUserId();
+  const [row] = await db
+    .update(transactions)
+    .set({
+      aiTips: tips,
+      aiTipsStatus: status,
+      updatedAt: new Date(),
+    })
+    .where(and(eq(transactions.id, id), eq(transactions.userId, userId)))
+    .returning();
+
+  return row ? (mapTransaction(row) as Transaction) : null;
 }
 
 export async function removeTransaction(id: string) {
@@ -655,9 +696,67 @@ function mapExpenseTipsReport(row: {
     summary: row.summary,
     tips: (Array.isArray(row.tips) ? row.tips : []) as ExpenseTip[],
     estimated_monthly_savings: Number(row.estimatedMonthlySavings),
+    pending_count: 0,
     created_at: row.createdAt.toISOString(),
     updated_at: row.updatedAt.toISOString(),
   };
+}
+
+export function buildMonthTipsOverview(
+  txs: TransactionWithCategory[],
+  month: string
+): {
+  tips: ExpenseTip[];
+  estimated_monthly_savings: number;
+  pending_count: number;
+  evaluated_count: number;
+  total_count: number;
+} {
+  const monthKey = month.slice(0, 7);
+  const monthTx = txs.filter((tx) => tx.date.slice(0, 7) === monthKey);
+  const tips = monthTx.flatMap((tx) =>
+    (tx.ai_tips ?? []).map((tip) => ({
+      ...tip,
+      transaction_id: tip.transaction_id ?? tx.id,
+      merchant: tip.merchant || tx.merchant,
+      reason: tip.why ?? tip.reason,
+      alternative: tip.instead ?? tip.alternative,
+    }))
+  );
+  const priorityRank = { high: 0, medium: 1, low: 2 } as const;
+  tips.sort((a, b) => {
+    const pr = priorityRank[a.priority] - priorityRank[b.priority];
+    if (pr !== 0) return pr;
+    return b.estimated_savings - a.estimated_savings;
+  });
+  const pending_count = monthTx.filter(
+    (tx) => tx.ai_tips_status !== "done" && tx.ai_tips_status !== "error"
+  ).length;
+  const evaluated_count = monthTx.filter(
+    (tx) => tx.ai_tips_status === "done" || tx.ai_tips_status === "error"
+  ).length;
+  const estimated_monthly_savings = tips.reduce(
+    (sum, tip) => sum + (Number(tip.estimated_savings) || 0),
+    0
+  );
+  return {
+    tips,
+    estimated_monthly_savings: Math.round(estimated_monthly_savings * 100) / 100,
+    pending_count,
+    evaluated_count,
+    total_count: monthTx.length,
+  };
+}
+
+export async function listUnevaluatedTransactions(month: string) {
+  const txs = await getTransactions();
+  const monthKey = month.slice(0, 7);
+  return txs.filter(
+    (tx) =>
+      tx.date.slice(0, 7) === monthKey &&
+      tx.ai_tips_status !== "done" &&
+      tx.ai_tips_status !== "error"
+  );
 }
 
 export async function getExpenseTipsReport(

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
+  getTransactionById,
   insertTransaction,
   patchTransaction,
   removeTransaction,
@@ -66,6 +67,8 @@ function toPayload(data: TransactionInput, userId: string) {
       | "regret"
       | null,
     split_data: null,
+    ai_tips: null,
+    ai_tips_status: null,
   };
 }
 
@@ -140,7 +143,14 @@ export async function updateTransaction(
 
   try {
     const userId = await requireUserId();
-    await patchTransaction(id, toPayload(parsed.data, userId));
+    const existing = await getTransactionById(id);
+    const payload = toPayload(parsed.data, userId);
+    await patchTransaction(id, {
+      ...payload,
+      split_data: existing?.split_data ?? null,
+      ai_tips: existing?.ai_tips ?? null,
+      ai_tips_status: existing?.ai_tips_status ?? null,
+    });
   } catch (error) {
     return {
       error: error instanceof Error ? error.message : "Speichern fehlgeschlagen",

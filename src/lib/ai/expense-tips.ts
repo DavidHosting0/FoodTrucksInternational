@@ -1,32 +1,31 @@
 import { z } from "zod";
-import type { TransactionWithCategory } from "@/types/database";
+import type {
+  ExpenseTip,
+  ReceiptSplitItem,
+  TransactionWithCategory,
+} from "@/types/database";
 
 const tipSchema = z.object({
-  transaction_id: z.string().nullable().optional(),
-  merchant: z.string().default(""),
+  title: z.string().min(1),
   item: z.string().nullable().optional(),
-  severity: z
-    .enum(["unnecessary", "questionable", "ok"])
-    .default("questionable"),
-  necessity: z
-    .enum(["necessary", "sensible", "optional", "unnecessary"])
-    .default("optional"),
-  reason: z.string().min(1),
-  alternative: z.string().min(1),
+  why: z.string().min(1),
+  instead: z.string().min(1),
+  how: z.array(z.string()).default([]),
+  severity: z.enum(["waste", "questionable", "ok"]).default("questionable"),
   estimated_savings: z.number().nonnegative().default(0),
   priority: z.enum(["low", "medium", "high"]).default("medium"),
 });
 
-const analysisSchema = z.object({
-  summary: z.string().default(""),
-  estimated_monthly_savings: z.number().nonnegative().default(0),
+const receiptAnalysisSchema = z.object({
   tips: z.array(tipSchema).default([]),
 });
 
-export type ExpenseTipsAnalysis = z.infer<typeof analysisSchema>;
+export type ReceiptTipsAnalysis = {
+  tips: ExpenseTip[];
+};
 
-function resolveModel() {
-  return process.env.OPENAI_MODEL || "gpt-4o";
+function resolveTipsModel() {
+  return process.env.OPENAI_TIPS_MODEL || "gpt-4o-mini";
 }
 
 function requireApiKey() {
@@ -37,79 +36,88 @@ function requireApiKey() {
   return apiKey;
 }
 
-function buildPayload(
-  transactions: TransactionWithCategory[],
-  month: string,
-  currency: string
-) {
-  const monthTx = transactions
-    .filter((tx) => tx.date.slice(0, 7) === month.slice(0, 7))
-    .slice(0, 45);
+function shorten(name: string, max = 48) {
+  const cleaned = name.replace(/\s+/g, " ").trim();
+  if (cleaned.length <= max) return cleaned;
+  return `${cleaned.slice(0, max - 1)}…`;
+}
 
-  return {
-    month: month.slice(0, 7),
-    currency,
-    household: ["Carlo", "David"],
-    transactions: monthTx.map((tx) => ({
-      id: tx.id,
-      date: tx.date,
-      merchant: tx.merchant,
-      amount: Number(tx.amount),
-      category: tx.categories?.name ?? null,
-      necessity: tx.necessity,
-      items: (tx.split_data?.items ?? []).slice(0, 40).map((item) => ({
-        name: item.name,
-        quantity: item.quantity,
-        line_total: item.line_total,
-      })),
-    })),
-  };
+export function compactReceiptItems(items: ReceiptSplitItem[] | undefined) {
+  return (items ?? []).slice(0, 40).map((item) => ({
+    n: shorten(item.name),
+    q: Number(item.quantity) || 1,
+    p: Number(item.line_total) || 0,
+  }));
 }
 
 function systemPrompt(currency: string) {
-  return `Du bist ein sparsam-pragmatischer Haushalts-Coach für Carlo und David (Schweiz/EU).
-Analysiere Monatsausgaben und gekaufte Artikelpositionen. Antworte NUR mit gültigem JSON:
-{
-  "summary": string,
-  "estimated_monthly_savings": number,
-  "tips": [{
-    "transaction_id": string|null,
-    "merchant": string,
-    "item": string|null,
-    "severity": "unnecessary"|"questionable"|"ok",
-    "necessity": "necessary"|"sensible"|"optional"|"unnecessary",
-    "reason": string,
-    "alternative": string,
-    "estimated_savings": number,
-    "priority": "low"|"medium"|"high"
-  }]
-}
+  return `Du bist der freche Haushalts-Roaster für Carlo & David (Schweiz).
+Bewerte EINEN Beleg anhand der Artikel. Antworte NUR mit JSON:
+{"tips":[{"title":string,"item":string|null,"why":string,"instead":string,"how":[string],"severity":"waste"|"questionable"|"ok","estimated_savings":number,"priority":"low"|"medium"|"high"}]}
+
 Regeln:
-- Bewerte konkrete Artikel, nicht nur Händler. Beispiel: Bei Lidl/Migros Backware → Alternativ Nudel-/Reispackung oder haltbare Grundnahrungsmittel, weil länger haltbar und weniger Impulskonsum.
-- Markiere echte Verschwendung als severity "unnecessary" und necessity "unnecessary".
-- Markiere zweifelhafte Käufe als "questionable"/"optional".
-- Sinnvolle Grundversorgung als "ok"/"sensible" oder "necessary" — nur erwähnen wenn besonders gut.
-- Alternativen müssen konkret, realistisch und im gleichen Laden/Einkaufskontext umsetzbar sein.
-- maximal 12 Tipps, priorisiert nach Sparpotenzial.
-- Nur Deutsch, kurz und klar.
-- estimated_savings in ${currency} pro Monat (Schätzung).`;
+- Maximal 3 Tipps. Bei normalem vernünftigem Einkauf: tips=[].
+- Sei spezifisch zum ARTIKEL (Name + Preis), nicht generisch zum Laden.
+- why: detailreich, klar, auf Deutsch. Bei waste: sarkastisch/beleidigend erlaubt.
+- instead: konkrete Alternative im gleichen Kontext (z.B. Lidl Backware → Nudel-/Reispackung, haltbarer, weniger Impuls).
+- how: 1-3 kurze Handlungsschritte.
+- estimated_savings in ${currency} (Schätzung für diesen Fehlkauf / Monatseffekt).
+- severity waste nur bei echter Verschwendung; questionable bei zweifelhaft; ok nur wenn der Tipp wirklich wertvoll ist.`;
 }
 
-export async function analyzeExpenseTipsWithOpenAI(
-  transactions: TransactionWithCategory[],
-  month: string,
-  currency = "CHF"
-): Promise<ExpenseTipsAnalysis> {
-  const apiKey = requireApiKey();
-  const payload = buildPayload(transactions, month, currency);
+function mapTip(
+  tip: z.infer<typeof tipSchema>,
+  ctx: { transactionId: string; merchant: string }
+): ExpenseTip {
+  const severity =
+    tip.severity === "waste"
+      ? "unnecessary"
+      : tip.severity === "ok"
+        ? "ok"
+        : "questionable";
+  const necessity =
+    tip.severity === "waste"
+      ? "unnecessary"
+      : tip.severity === "ok"
+        ? "sensible"
+        : "optional";
 
-  if (payload.transactions.length === 0) {
-    return {
-      summary: "Für diesen Monat gibt es noch keine Ausgaben zum Bewerten.",
-      estimated_monthly_savings: 0,
-      tips: [],
-    };
-  }
+  return {
+    transaction_id: ctx.transactionId,
+    merchant: ctx.merchant,
+    item: tip.item ?? null,
+    title: tip.title,
+    why: tip.why,
+    instead: tip.instead,
+    how: tip.how.slice(0, 3),
+    reason: tip.why,
+    alternative: tip.instead,
+    severity,
+    tip_severity: tip.severity,
+    necessity,
+    estimated_savings: Number(tip.estimated_savings) || 0,
+    priority: tip.priority,
+  };
+}
+
+export async function analyzeReceiptTipsWithOpenAI(input: {
+  transactionId: string;
+  merchant: string;
+  date: string;
+  total: number;
+  currency: string;
+  items: ReceiptSplitItem[] | undefined;
+}): Promise<ReceiptTipsAnalysis> {
+  const apiKey = requireApiKey();
+  const compactItems = compactReceiptItems(input.items);
+
+  const payload = {
+    m: shorten(input.merchant, 64),
+    d: input.date.slice(0, 10),
+    t: Number(input.total),
+    c: input.currency,
+    i: compactItems,
+  };
 
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -118,18 +126,13 @@ export async function analyzeExpenseTipsWithOpenAI(
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: resolveModel(),
-      temperature: 0.3,
+      model: resolveTipsModel(),
+      temperature: 0.5,
+      max_tokens: 700,
       response_format: { type: "json_object" },
       messages: [
-        {
-          role: "system",
-          content: systemPrompt(currency),
-        },
-        {
-          role: "user",
-          content: JSON.stringify(payload),
-        },
+        { role: "system", content: systemPrompt(input.currency) },
+        { role: "user", content: JSON.stringify(payload) },
       ],
     }),
   });
@@ -154,22 +157,38 @@ export async function analyzeExpenseTipsWithOpenAI(
     throw new Error("OpenAI Tipps: ungültiges JSON");
   }
 
-  const parsed = analysisSchema.parse(raw);
-  const validIds = new Set(payload.transactions.map((tx) => tx.id));
+  const parsed = receiptAnalysisSchema.parse(raw);
+  const tips = parsed.tips
+    .slice(0, 3)
+    .map((tip) =>
+      mapTip(tip, {
+        transactionId: input.transactionId,
+        merchant: input.merchant,
+      })
+    )
+    // Drop pure "ok" fluff unless it has a real alternative
+    .filter((tip) => tip.tip_severity !== "ok" || tip.estimated_savings > 0);
 
-  return {
-    ...parsed,
-    tips: parsed.tips
-      .map((tip) => ({
-        ...tip,
-        transaction_id:
-          tip.transaction_id && validIds.has(tip.transaction_id)
-            ? tip.transaction_id
-            : null,
-        merchant: tip.merchant || "Unbekannt",
-        item: tip.item ?? null,
-        estimated_savings: Number(tip.estimated_savings) || 0,
-      }))
-      .slice(0, 12),
-  };
+  return { tips };
+}
+
+/** Catch-up: analyze one stored transaction. */
+export async function analyzeTransactionTips(
+  tx: TransactionWithCategory | {
+    id: string;
+    merchant: string;
+    date: string;
+    amount: number;
+    currency: string;
+    split_data: { items?: ReceiptSplitItem[] } | null;
+  }
+): Promise<ReceiptTipsAnalysis> {
+  return analyzeReceiptTipsWithOpenAI({
+    transactionId: tx.id,
+    merchant: tx.merchant,
+    date: tx.date,
+    total: Number(tx.amount),
+    currency: tx.currency,
+    items: tx.split_data?.items,
+  });
 }

@@ -299,7 +299,32 @@ export async function confirmReceiptSplitAction(
       purchase_type: "spontaneous",
       satisfaction: null,
       split_data: split,
+      ai_tips: null,
+      ai_tips_status: "pending",
     });
+
+    try {
+      const { analyzeReceiptTipsWithOpenAI } = await import(
+        "@/lib/ai/expense-tips"
+      );
+      const { updateTransactionAiTips } = await import("@/lib/data/finance");
+      const analysis = await analyzeReceiptTipsWithOpenAI({
+        transactionId: tx.id,
+        merchant,
+        date,
+        total: amount,
+        currency,
+        items: split.items,
+      });
+      await updateTransactionAiTips(tx.id, analysis.tips, "done");
+    } catch {
+      try {
+        const { updateTransactionAiTips } = await import("@/lib/data/finance");
+        await updateTransactionAiTips(tx.id, [], "error");
+      } catch {
+        /* Tipps dürfen Speichern nicht blockieren */
+      }
+    }
 
     if (!isDemoMode()) {
       const scanAbs = path.join(

@@ -89,6 +89,8 @@ export interface Transaction {
   purchase_type: PurchaseType | null;
   satisfaction: Satisfaction | null;
   split_data: ReceiptSplitData | null;
+  ai_tips: ExpenseTip[] | null;
+  ai_tips_status: "pending" | "done" | "error" | null;
   created_at: string;
   updated_at: string;
   categories?: Category | null;
@@ -166,14 +168,21 @@ export type ExpenseTipSeverity =
   | "questionable"
   | "ok";
 
+export type ExpenseTipRoastSeverity = "waste" | "questionable" | "ok";
+
 export interface ExpenseTip {
   transaction_id: string | null;
   merchant: string;
   item: string | null;
-  severity: ExpenseTipSeverity;
-  necessity: Necessity;
+  title?: string;
+  why?: string;
+  instead?: string;
+  how?: string[];
   reason: string;
   alternative: string;
+  severity: ExpenseTipSeverity;
+  tip_severity?: ExpenseTipRoastSeverity;
+  necessity: Necessity;
   estimated_savings: number;
   priority: "low" | "medium" | "high";
 }
@@ -185,6 +194,7 @@ export interface ExpenseTipsReport {
   summary: string;
   tips: ExpenseTip[];
   estimated_monthly_savings: number;
+  pending_count: number;
   created_at: string;
   updated_at: string;
 }

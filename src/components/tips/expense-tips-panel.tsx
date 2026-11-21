@@ -1,11 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import {
   analyzeExpenseTipsAction,
   type ActionState,
 } from "@/app/actions/expense-tips";
-import type { ExpenseTipsReport } from "@/types/database";
+import type { ExpenseTip } from "@/types/database";
 import { formatMoney } from "@/lib/format";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +15,7 @@ import { Button } from "@/components/ui/button";
 const initial: ActionState = {};
 
 const severityLabel = {
-  unnecessary: "Unnötig",
+  unnecessary: "Verschwendung",
   questionable: "Fragwürdig",
   ok: "Ok",
 } as const;
@@ -27,19 +28,25 @@ const priorityLabel = {
 
 export function ExpenseTipsPanel({
   month,
-  report,
+  tips,
   currency,
+  estimatedSavings,
+  pendingCount,
+  evaluatedCount,
+  totalCount,
 }: {
   month: string;
-  report: ExpenseTipsReport | null;
+  tips: ExpenseTip[];
   currency: string;
+  estimatedSavings: number;
+  pendingCount: number;
+  evaluatedCount: number;
+  totalCount: number;
 }) {
   const [state, action, pending] = useActionState(
     analyzeExpenseTipsAction,
     initial
   );
-  const tips = report?.tips ?? [];
-  const flagged = tips.filter((tip) => tip.severity !== "ok");
 
   return (
     <div className="space-y-4">
@@ -48,30 +55,29 @@ export function ExpenseTipsPanel({
           AI Tipps · {month}
         </p>
         <p className="mt-2 text-3xl font-semibold tabular-nums tracking-tight">
-          {formatMoney(report?.estimated_monthly_savings ?? 0, currency)}
+          {formatMoney(estimatedSavings, currency)}
         </p>
         <p className="mt-2 text-sm text-white/75">
-          geschätztes Sparpotenzial / Monat
+          Sparpotenzial aus Beleg-Tipps
         </p>
-        {report?.summary ? (
-          <p className="mt-4 text-sm leading-relaxed text-white/85">
-            {report.summary}
-          </p>
-        ) : (
-          <p className="mt-4 text-sm text-white/70">
-            Analysiert Ausgaben und Artikel — markiert Unnötiges und schlägt
-            haltbarere Alternativen vor.
-          </p>
-        )}
+        <p className="mt-4 text-sm leading-relaxed text-white/85">
+          Jeder Beleg wird einzeln bewertet. {evaluatedCount}/{totalCount}{" "}
+          geprüft
+          {pendingCount > 0 ? ` · ${pendingCount} offen` : ""}.
+        </p>
         <form action={action} className="mt-5">
           <input type="hidden" name="month" value={month} />
           <Button
             type="submit"
             variant="secondary"
-            disabled={pending}
+            disabled={pending || pendingCount === 0}
             className="w-full"
           >
-            {pending ? "Analysiert…" : report ? "Neu analysieren" : "Jetzt analysieren"}
+            {pending
+              ? "Bewertet…"
+              : pendingCount > 0
+                ? `Unbewertete nachholen (${pendingCount})`
+                : "Alles bewertet"}
           </Button>
         </form>
       </div>
@@ -91,18 +97,20 @@ export function ExpenseTipsPanel({
         <div className="metal-surface rounded-3xl px-5 py-12 text-center">
           <p className="font-medium">Noch keine Tipps</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Starte die Analyse für diesen Monat.
+            {pendingCount > 0
+              ? "Offene Belege nachholen, dann erscheinen Roasts hier."
+              : "Erfasse Belege — die AI meldet sich bei Fehlkäufen."}
           </p>
         </div>
       ) : (
-        <>
-          <p className="px-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            {flagged.length} markiert · {tips.length} Tipps
-          </p>
-          <ul className="space-y-2">
-            {tips.map((tip, index) => (
+        <ul className="space-y-2">
+          {tips.map((tip, index) => {
+            const why = tip.why ?? tip.reason;
+            const instead = tip.instead ?? tip.alternative;
+            const how = tip.how ?? [];
+            return (
               <li
-                key={`${tip.transaction_id ?? "x"}-${tip.item ?? tip.reason}-${index}`}
+                key={`${tip.transaction_id ?? "x"}-${tip.item ?? tip.title}-${index}`}
                 className="metal-surface space-y-2.5 rounded-3xl px-4 py-4"
               >
                 <div className="flex flex-wrap items-center gap-2">
@@ -126,23 +134,39 @@ export function ExpenseTipsPanel({
                 </div>
                 <div>
                   <p className="font-medium leading-snug">
-                    {tip.item ? tip.item : tip.merchant}
+                    {tip.title ?? tip.item ?? tip.merchant}
                   </p>
-                  {tip.item ? (
-                    <p className="mt-0.5 text-xs text-muted-foreground">
-                      {tip.merchant}
-                    </p>
-                  ) : null}
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {tip.merchant}
+                    {tip.item ? ` · ${tip.item}` : ""}
+                  </p>
                 </div>
-                <p className="text-sm text-muted-foreground">{tip.reason}</p>
-                <p className="text-sm">
-                  <span className="font-medium text-primary">Alternative: </span>
-                  {tip.alternative}
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  {why}
                 </p>
+                <p className="text-sm">
+                  <span className="font-medium text-primary">Stattdessen: </span>
+                  {instead}
+                </p>
+                {how.length > 0 ? (
+                  <ul className="space-y-1 text-sm text-muted-foreground">
+                    {how.map((step, i) => (
+                      <li key={i}>→ {step}</li>
+                    ))}
+                  </ul>
+                ) : null}
+                {tip.transaction_id ? (
+                  <Link
+                    href={`/transactions/${tip.transaction_id}/edit`}
+                    className="inline-block text-xs font-medium text-primary"
+                  >
+                    Zum Beleg
+                  </Link>
+                ) : null}
               </li>
-            ))}
-          </ul>
-        </>
+            );
+          })}
+        </ul>
       )}
     </div>
   );

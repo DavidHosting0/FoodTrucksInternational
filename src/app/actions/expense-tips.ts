@@ -1,18 +1,18 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { analyzeExpenseTipsWithOpenAI } from "@/lib/ai/expense-tips";
+import { analyzeTransactionTips } from "@/lib/ai/expense-tips";
 import {
-  getTransactions,
-  updateTransactionNecessities,
-  upsertExpenseTipsReport,
+  listUnevaluatedTransactions,
+  updateTransactionAiTips,
 } from "@/lib/data/finance";
-import type { Necessity } from "@/types/database";
 
 export type ActionState = {
   error?: string;
   success?: string;
 };
+
+const CATCHUP_BATCH = 8;
 
 export async function analyzeExpenseTipsAction(
   _prev: ActionState,
@@ -24,71 +24,41 @@ export async function analyzeExpenseTipsAction(
   }
 
   try {
-    const transactions = await getTransactions();
-    const currency = transactions[0]?.currency ?? "CHF";
-    const analysis = await analyzeExpenseTipsWithOpenAI(
-      transactions,
-      month,
-      currency
-    );
+    const pending = await listUnevaluatedTransactions(month);
+    if (pending.length === 0) {
+      return { success: "Alle Belege dieses Monats sind bereits bewertet" };
+    }
 
-    await upsertExpenseTipsReport({
-      month,
-      summary: analysis.summary,
-      tips: analysis.tips.map((tip) => ({
-        transaction_id: tip.transaction_id ?? null,
-        merchant: tip.merchant,
-        item: tip.item ?? null,
-        severity: tip.severity,
-        necessity: tip.necessity,
-        reason: tip.reason,
-        alternative: tip.alternative,
-        estimated_savings: tip.estimated_savings,
-        priority: tip.priority,
-      })),
-      estimated_monthly_savings: analysis.estimated_monthly_savings,
-    });
+    const batch = pending.slice(0, CATCHUP_BATCH);
+    let ok = 0;
+    let failed = 0;
+    let tipCount = 0;
 
-    const necessityUpdates = new Map<string, Necessity>();
-    for (const tip of analysis.tips) {
-      if (!tip.transaction_id) continue;
-      if (
-        tip.necessity === "unnecessary" ||
-        tip.necessity === "optional" ||
-        tip.severity === "unnecessary"
-      ) {
-        const next: Necessity =
-          tip.severity === "unnecessary" || tip.necessity === "unnecessary"
-            ? "unnecessary"
-            : tip.necessity;
-        const prev = necessityUpdates.get(tip.transaction_id);
-        if (
-          !prev ||
-          (prev !== "unnecessary" && next === "unnecessary") ||
-          (prev === "sensible" || prev === "necessary")
-        ) {
-          necessityUpdates.set(tip.transaction_id, next);
-        }
+    for (const tx of batch) {
+      try {
+        await updateTransactionAiTips(tx.id, tx.ai_tips ?? [], "pending");
+        const analysis = await analyzeTransactionTips(tx);
+        await updateTransactionAiTips(tx.id, analysis.tips, "done");
+        tipCount += analysis.tips.length;
+        ok += 1;
+      } catch {
+        await updateTransactionAiTips(tx.id, [], "error");
+        failed += 1;
       }
     }
 
-    await updateTransactionNecessities(
-      [...necessityUpdates.entries()].map(([id, necessity]) => ({
-        id,
-        necessity,
-      }))
-    );
-
     revalidatePath("/dashboard");
     revalidatePath("/transactions");
-    revalidatePath("/optimization");
 
-    return {
-      success:
-        analysis.tips.length > 0
-          ? `${analysis.tips.length} Tipps erstellt`
-          : "Analyse fertig — keine kritischen Tipps",
-    };
+    const remaining = pending.length - batch.length;
+    const parts = [
+      `${ok} Beleg${ok === 1 ? "" : "e"} bewertet`,
+      tipCount > 0 ? `${tipCount} Tipps` : null,
+      failed > 0 ? `${failed} Fehler` : null,
+      remaining > 0 ? `${remaining} noch offen — nochmal tippen` : null,
+    ].filter(Boolean);
+
+    return { success: parts.join(" · ") };
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Analyse fehlgeschlagen";
