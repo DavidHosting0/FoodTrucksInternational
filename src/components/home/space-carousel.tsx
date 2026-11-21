@@ -20,6 +20,7 @@ import {
   resolveSpaceId,
   type HomeSpaceId,
 } from "@/components/home/spaces";
+import { openReceiptCamera } from "@/components/receipts/receipt-capture-flow";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -322,7 +323,11 @@ export function SpaceCarousel({ initialSpace, panels }: Props) {
                   type="button"
                   aria-label={space.title}
                   aria-current={active}
-                  onClick={() => goToIndex(i)}
+                  onClick={() => {
+                    goToIndex(i);
+                    // Same user gesture → opens the system camera immediately.
+                    openReceiptCamera();
+                  }}
                   className="-mt-5 flex flex-col items-center justify-end pb-2 transition-transform active:scale-95"
                 >
                   <span

@@ -83,14 +83,8 @@ export function ListSpace({
 
 export function CaptureSpace({ categories }: { categories: Category[] }) {
   return (
-    <div className="space-y-4 pb-4 pt-2">
-      <div>
-        <h2 className="text-2xl font-semibold tracking-tight">Erfassen</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Beleg fotografieren und Carlo/David zuteilen
-        </p>
-      </div>
-      <ReceiptCaptureFlow categories={categories} autoOpenCamera={false} />
+    <div className="pb-4 pt-2">
+      <ReceiptCaptureFlow categories={categories} autoOpenCamera />
     </div>
   );
 }

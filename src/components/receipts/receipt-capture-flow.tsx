@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Camera, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import type { Category } from "@/types/database";
 import {
@@ -16,7 +16,22 @@ import { ReceiptReview } from "@/components/receipts/receipt-review";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 
+export const RECEIPT_CAMERA_INPUT_ID = "receipt-camera-input";
+export const OPEN_RECEIPT_CAMERA_EVENT = "fig:open-receipt-camera";
+
 type Phase = "capture" | "scanning" | "review";
+
+export function openReceiptCamera() {
+  const input = document.getElementById(
+    RECEIPT_CAMERA_INPUT_ID
+  ) as HTMLInputElement | null;
+  if (!input) {
+    window.dispatchEvent(new Event(OPEN_RECEIPT_CAMERA_EVENT));
+    return;
+  }
+  input.value = "";
+  input.click();
+}
 
 export function ReceiptCaptureFlow({
   categories,
@@ -39,9 +54,32 @@ export function ReceiptCaptureFlow({
   const [pendingScan, startScan] = useTransition();
   const [pendingConfirm, startConfirm] = useTransition();
 
+  const triggerCamera = () => {
+    const input = fileRef.current;
+    if (!input) return;
+    input.value = "";
+    input.click();
+  };
+
+  useEffect(() => {
+    const onOpen = () => {
+      const input = fileRef.current;
+      if (!input) return;
+      input.value = "";
+      input.click();
+    };
+    window.addEventListener(OPEN_RECEIPT_CAMERA_EVENT, onOpen);
+    return () => window.removeEventListener(OPEN_RECEIPT_CAMERA_EVENT, onOpen);
+  }, []);
+
   useEffect(() => {
     if (!autoOpenCamera) return;
-    const t = window.setTimeout(() => fileRef.current?.click(), 250);
+    const t = window.setTimeout(() => {
+      const input = fileRef.current;
+      if (!input) return;
+      input.value = "";
+      input.click();
+    }, 50);
     return () => window.clearTimeout(t);
   }, [autoOpenCamera]);
 
@@ -128,6 +166,7 @@ export function ReceiptCaptureFlow({
   return (
     <div className="space-y-5">
       <input
+        id={RECEIPT_CAMERA_INPUT_ID}
         ref={fileRef}
         type="file"
         accept="image/*"
@@ -138,42 +177,23 @@ export function ReceiptCaptureFlow({
 
       {phase === "capture" ? (
         <div className="space-y-4">
-          <button
-            type="button"
-            onClick={() => fileRef.current?.click()}
-            className="metal-surface flex w-full flex-col items-center justify-center gap-3 rounded-[1.75rem] px-4 py-16 text-sm text-muted-foreground transition-transform active:scale-[0.99]"
-          >
-            {preview ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={preview}
-                alt="Vorschau"
-                className="max-h-56 w-full rounded-2xl object-contain"
-              />
-            ) : (
-              <>
-                <span className="metal-fab flex size-16 items-center justify-center rounded-full">
-                  <Camera className="size-7" />
-                </span>
-                <span className="text-base font-medium text-foreground">
-                  Beleg fotografieren
-                </span>
-                <span>Kamera öffnet sich für den Kassenzettel</span>
-              </>
-            )}
-          </button>
           {scanError ? (
             <Alert variant="destructive">
               <AlertDescription>{scanError}</AlertDescription>
             </Alert>
-          ) : null}
+          ) : (
+            <div className="metal-plate flex flex-col items-center justify-center gap-3 rounded-[1.75rem] px-4 py-16 text-white">
+              <Loader2 className="size-8 animate-spin opacity-80" />
+              <p className="text-lg font-semibold">Kamera öffnen…</p>
+            </div>
+          )}
           <Button
             type="button"
-            variant="secondary"
             className="w-full"
-            onClick={() => fileRef.current?.click()}
+            size="lg"
+            onClick={triggerCamera}
           >
-            Erneut aufnehmen
+            Foto aufnehmen
           </Button>
         </div>
       ) : null}
@@ -197,7 +217,15 @@ export function ReceiptCaptureFlow({
             pending={pendingConfirm}
             onSubmit={onConfirm}
           />
-          <Button type="button" variant="ghost" className="w-full" onClick={reset}>
+          <Button
+            type="button"
+            variant="ghost"
+            className="w-full"
+            onClick={() => {
+              reset();
+              triggerCamera();
+            }}
+          >
             Anderes Foto
           </Button>
         </div>
