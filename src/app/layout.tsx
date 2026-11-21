@@ -16,20 +16,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Personal Expense Manager",
+  title: "FIG Finance",
   description:
-    "Moderne Webapp zur Verwaltung, Dokumentation und Optimierung persönlicher Finanzen.",
+    "Persönliche Finanzen verwalten — Budgets, Ausgaben und Optimierung.",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Expenses",
+    title: "FIG Finance",
   },
   icons: {
     icon: [
+      { url: "/brand/fig-logo.png", type: "image/png" },
       { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
       { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
     ],
-    apple: [{ url: "/icons/icon-192.png", sizes: "192x192" }],
+    apple: [{ url: "/brand/fig-logo.png" }],
   },
 };
 

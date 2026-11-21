@@ -1,22 +1,34 @@
+import Image from "next/image";
+import { FigLogo } from "@/components/brand/fig-logo";
+
 export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative flex min-h-svh flex-col items-center justify-center bg-background px-4 py-10">
-      <div className="relative z-10 mb-10 text-center">
-        <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-3xl bg-primary text-primary-foreground">
-          <span className="text-xl font-bold">E</span>
+    <div className="relative flex min-h-svh flex-col bg-background">
+      <div className="relative h-44 w-full overflow-hidden sm:h-56">
+        <Image
+          src="/brand/fig-banner.jpg"
+          alt=""
+          fill
+          priority
+          className="object-cover object-center"
+          sizes="100vw"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-background" />
+        <div className="absolute inset-x-0 bottom-0 flex justify-center px-6 pb-2">
+          <FigLogo priority className="w-40 drop-shadow-[0_0_24px_rgba(45,255,156,0.35)] sm:w-48" />
         </div>
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-          Expense
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Deine Finanzen. Klar. Grün.
-        </p>
       </div>
-      <div className="relative z-10 w-full max-w-md">{children}</div>
+
+      <div className="relative z-10 mx-auto flex w-full max-w-md flex-1 flex-col px-4 pb-10 pt-6">
+        <p className="mb-6 text-center text-sm text-muted-foreground">
+          FIG Finance — deine Ausgaben im Griff
+        </p>
+        {children}
+      </div>
     </div>
   );
 }
