@@ -1,7 +1,14 @@
 import type { NextAuthConfig } from "next-auth";
 
+/** Allow login over plain http://IP:port until HTTPS/domain is set up. */
+const useSecureCookies =
+  process.env.AUTH_INSECURE_HTTP === "true"
+    ? false
+    : (process.env.AUTH_URL ?? "").startsWith("https://");
+
 export const authConfig = {
   trustHost: true,
+  useSecureCookies,
   session: { strategy: "jwt" },
   pages: {
     signIn: "/login",
