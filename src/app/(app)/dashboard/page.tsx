@@ -1,13 +1,14 @@
 import { format } from "date-fns";
 import {
-  getBudgets,
   getCategories,
+  getHouseholdBudget,
   getRecurringExpenses,
   getSavingsOpportunities,
   getTransactions,
 } from "@/lib/data/finance";
 import { computeDashboardMetrics } from "@/lib/analytics/dashboard";
 import { generateSavingsOpportunities } from "@/lib/analytics/optimization";
+import { monthPersonTotals } from "@/lib/analytics/split";
 import { formatMoney } from "@/lib/format";
 import { HomeSpaces } from "@/components/home/home-spaces";
 import {
@@ -32,28 +33,19 @@ export default async function DashboardPage({
   const params = await searchParams;
   const month = params.month ?? format(new Date(), "yyyy-MM");
 
-  const [transactions, budgets, subscriptions, categories, stored] =
+  const [transactions, householdBudget, subscriptions, categories, stored] =
     await Promise.all([
       getTransactions(),
-      getBudgets(month),
+      getHouseholdBudget(month),
       getRecurringExpenses(),
       getCategories(),
       getSavingsOpportunities(),
     ]);
 
   const metrics = computeDashboardMetrics(transactions);
-
-  const budgetRows = budgets.map((budget) => {
-    const spent = transactions
-      .filter(
-        (tx) =>
-          tx.date.slice(0, 7) === month && tx.category_id === budget.category_id
-      )
-      .reduce((sum, tx) => sum + Number(tx.amount), 0);
-    return { ...budget, spent };
-  });
-  const budgetTotal = budgetRows.reduce((sum, b) => sum + Number(b.amount), 0);
-  const budgetSpent = budgetRows.reduce((sum, b) => sum + b.spent, 0);
+  const personTotals = monthPersonTotals(transactions, month);
+  const budgetTotal = householdBudget ? Number(householdBudget.amount) : 0;
+  const budgetSpent = personTotals.total;
   const budgetPct =
     budgetTotal > 0 ? Math.round((budgetSpent / budgetTotal) * 100) : null;
 
@@ -63,7 +55,10 @@ export default async function DashboardPage({
     0
   );
 
-  const currency = transactions[0]?.currency ?? metrics.currency;
+  const currency =
+    householdBudget?.currency ??
+    transactions[0]?.currency ??
+    metrics.currency;
   const opportunities =
     stored.length > 0
       ? stored
@@ -92,7 +87,7 @@ export default async function DashboardPage({
   }
   if (budgetPct !== null) {
     insights.unshift(
-      `Budget-Auslastung diesen Monat: ${budgetPct}% (${formatMoney(budgetSpent, metrics.currency)} von ${formatMoney(budgetTotal, metrics.currency)}).`
+      `Budget-Auslastung diesen Monat: ${budgetPct}% (${formatMoney(budgetSpent, currency)} von ${formatMoney(budgetTotal, currency)}).`
     );
   }
 
@@ -111,13 +106,23 @@ export default async function DashboardPage({
             activeSubs={activeSubs.length}
           />
         ),
-        list: <ListSpace transactions={transactions} />,
+        list: (
+          <ListSpace
+            transactions={transactions}
+            month={month}
+            carloTotal={personTotals.carlo}
+            davidTotal={personTotals.david}
+            currency={currency}
+          />
+        ),
         capture: <CaptureSpace categories={categories} />,
         budget: (
           <BudgetsSpace
-            categories={categories}
-            budgets={budgetRows}
             month={month}
+            budget={householdBudget}
+            spent={budgetSpent}
+            carlo={personTotals.carlo}
+            david={personTotals.david}
           />
         ),
         more: (

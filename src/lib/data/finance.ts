@@ -12,6 +12,7 @@ import {
 import {
   budgets,
   categories,
+  householdBudgets,
   receipts,
   recurringExpenses,
   savingsOpportunities,
@@ -30,6 +31,7 @@ import { DEMO_USER_ID, isDemoMode } from "@/lib/demo/mode";
 import type {
   Budget,
   Category,
+  HouseholdBudget,
   Receipt,
   RecurringExpense,
   SavingsOpportunity,
@@ -323,6 +325,99 @@ export async function deleteBudget(id: string) {
   await db
     .delete(budgets)
     .where(and(eq(budgets.id, id), eq(budgets.userId, userId)));
+}
+
+export async function getHouseholdBudget(
+  month: string
+): Promise<HouseholdBudget | null> {
+  if (isDemoMode()) return null;
+
+  const db = getDb();
+  const userId = await requireUserId();
+  const monthStart = `${month.slice(0, 7)}-01`;
+  const [row] = await db
+    .select()
+    .from(householdBudgets)
+    .where(
+      and(
+        eq(householdBudgets.userId, userId),
+        eq(householdBudgets.month, monthStart)
+      )
+    )
+    .limit(1);
+
+  if (!row) return null;
+  return {
+    id: row.id,
+    user_id: row.userId,
+    amount: Number(row.amount),
+    currency: row.currency as HouseholdBudget["currency"],
+    month: row.month,
+    created_at: row.createdAt.toISOString(),
+    updated_at: row.updatedAt.toISOString(),
+  };
+}
+
+export async function upsertHouseholdBudget(input: {
+  amount: number;
+  currency: string;
+  month: string;
+}) {
+  const db = getDb();
+  const userId = await requireUserId();
+  const monthStart = `${input.month.slice(0, 7)}-01`;
+
+  const [existing] = await db
+    .select()
+    .from(householdBudgets)
+    .where(
+      and(
+        eq(householdBudgets.userId, userId),
+        eq(householdBudgets.month, monthStart)
+      )
+    )
+    .limit(1);
+
+  if (existing) {
+    const [row] = await db
+      .update(householdBudgets)
+      .set({
+        amount: String(input.amount),
+        currency: input.currency,
+        updatedAt: new Date(),
+      })
+      .where(eq(householdBudgets.id, existing.id))
+      .returning();
+    return {
+      id: row.id,
+      user_id: row.userId,
+      amount: Number(row.amount),
+      currency: row.currency as HouseholdBudget["currency"],
+      month: row.month,
+      created_at: row.createdAt.toISOString(),
+      updated_at: row.updatedAt.toISOString(),
+    };
+  }
+
+  const [row] = await db
+    .insert(householdBudgets)
+    .values({
+      userId,
+      amount: String(input.amount),
+      currency: input.currency,
+      month: monthStart,
+    })
+    .returning();
+
+  return {
+    id: row.id,
+    user_id: row.userId,
+    amount: Number(row.amount),
+    currency: row.currency as HouseholdBudget["currency"],
+    month: row.month,
+    created_at: row.createdAt.toISOString(),
+    updated_at: row.updatedAt.toISOString(),
+  };
 }
 
 export async function getRecurringExpenses(): Promise<

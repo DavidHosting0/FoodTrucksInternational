@@ -105,6 +105,16 @@ export interface Budget {
   updated_at: string;
 }
 
+export interface HouseholdBudget {
+  id: string;
+  user_id: string;
+  amount: number;
+  currency: Currency;
+  month: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface RecurringExpense {
   id: string;
   user_id: string;

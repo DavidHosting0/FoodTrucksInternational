@@ -3,13 +3,13 @@ import { refreshOptimizationAction } from "@/app/actions/optimization";
 import type { DashboardMetrics } from "@/lib/analytics/dashboard";
 import { formatMoney } from "@/lib/format";
 import type {
-  Budget,
   Category,
+  HouseholdBudget,
   RecurringExpense,
   SavingsOpportunity,
   TransactionWithCategory,
 } from "@/types/database";
-import { BudgetsManager } from "@/components/budgets/budgets-manager";
+import { HouseholdBudgetCard } from "@/components/budgets/household-budget-card";
 import { MonthPicker } from "@/components/budgets/month-picker";
 import { HeroBalance } from "@/components/dashboard/hero-balance";
 import { InsightsList } from "@/components/dashboard/insights";
@@ -69,16 +69,48 @@ export function OverviewSpace({
 
 export function ListSpace({
   transactions,
+  month,
+  carloTotal,
+  davidTotal,
+  currency,
 }: {
   transactions: TransactionWithCategory[];
+  month: string;
+  carloTotal: number;
+  davidTotal: number;
+  currency: string;
 }) {
+  const monthTx = transactions.filter((tx) => tx.date.slice(0, 7) === month);
+
   return (
     <div className="space-y-4 pb-4 pt-2">
       <div>
         <h2 className="text-2xl font-semibold tracking-tight">Liste</h2>
-        <p className="mt-1 text-sm text-muted-foreground">Alle Bewegungen</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Ausgaben {month}
+        </p>
       </div>
-      <TransactionsTable transactions={transactions} />
+
+      <div className="grid grid-cols-2 gap-2">
+        <div className="metal-surface rounded-3xl px-4 py-4">
+          <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+            Carlo
+          </p>
+          <p className="mt-1.5 text-2xl font-semibold tabular-nums text-primary">
+            {formatMoney(carloTotal, currency)}
+          </p>
+        </div>
+        <div className="metal-surface rounded-3xl px-4 py-4">
+          <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+            David
+          </p>
+          <p className="mt-1.5 text-2xl font-semibold tabular-nums">
+            {formatMoney(davidTotal, currency)}
+          </p>
+        </div>
+      </div>
+
+      <TransactionsTable transactions={monthTx} />
     </div>
   );
 }
@@ -92,13 +124,17 @@ export function CaptureSpace({ categories }: { categories: Category[] }) {
 }
 
 export function BudgetsSpace({
-  categories,
-  budgets,
   month,
+  budget,
+  spent,
+  carlo,
+  david,
 }: {
-  categories: Category[];
-  budgets: (Budget & { categories?: Category | null; spent: number })[];
   month: string;
+  budget: HouseholdBudget | null;
+  spent: number;
+  carlo: number;
+  david: number;
 }) {
   return (
     <div className="space-y-5 pb-4 pt-2">
@@ -106,15 +142,17 @@ export function BudgetsSpace({
         <div>
           <h2 className="text-2xl font-semibold tracking-tight">Budget</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Limits & Fortschritt
+            Gesamt für Carlo & David
           </p>
         </div>
         <MonthPicker month={month} />
       </div>
-      <BudgetsManager
-        categories={categories}
-        budgets={budgets}
+      <HouseholdBudgetCard
         month={month}
+        budget={budget}
+        spent={spent}
+        carlo={carlo}
+        david={david}
       />
     </div>
   );

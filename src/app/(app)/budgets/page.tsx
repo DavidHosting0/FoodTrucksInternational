@@ -1,6 +1,10 @@
 import { format } from "date-fns";
-import { getBudgets, getCategories, getTransactions } from "@/lib/data/finance";
-import { BudgetsManager } from "@/components/budgets/budgets-manager";
+import {
+  getHouseholdBudget,
+  getTransactions,
+} from "@/lib/data/finance";
+import { monthPersonTotals } from "@/lib/analytics/split";
+import { HouseholdBudgetCard } from "@/components/budgets/household-budget-card";
 import { MonthPicker } from "@/components/budgets/month-picker";
 
 export default async function BudgetsPage({
@@ -10,37 +14,29 @@ export default async function BudgetsPage({
 }) {
   const params = await searchParams;
   const month = params.month ?? format(new Date(), "yyyy-MM");
-  const [categories, budgets, transactions] = await Promise.all([
-    getCategories(),
-    getBudgets(month),
+  const [budget, transactions] = await Promise.all([
+    getHouseholdBudget(month),
     getTransactions(),
   ]);
-
-  const withSpend = budgets.map((budget) => {
-    const spent = transactions
-      .filter((tx) => {
-        const d = tx.date.slice(0, 7);
-        return d === month && tx.category_id === budget.category_id;
-      })
-      .reduce((sum, tx) => sum + Number(tx.amount), 0);
-    return { ...budget, spent };
-  });
+  const personTotals = monthPersonTotals(transactions, month);
 
   return (
     <div className="mx-auto max-w-xl space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Budgets</h1>
+          <h1 className="text-3xl font-semibold tracking-tight">Budget</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Limits & Fortschritt
+            Gesamt für Carlo & David
           </p>
         </div>
         <MonthPicker month={month} />
       </div>
-      <BudgetsManager
-        categories={categories}
-        budgets={withSpend}
+      <HouseholdBudgetCard
         month={month}
+        budget={budget}
+        spent={personTotals.total}
+        carlo={personTotals.carlo}
+        david={personTotals.david}
       />
     </div>
   );
