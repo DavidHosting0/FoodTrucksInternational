@@ -12,14 +12,16 @@ export function HomeSpaces({
   panels: Record<HomeSpaceId, ReactNode>;
 }) {
   return (
-    <Suspense
-      fallback={
-        <div className="rounded-3xl metal-surface px-4 py-16 text-center text-sm text-muted-foreground">
-          Spaces laden…
-        </div>
-      }
-    >
-      <SpaceCarousel initialSpace={initialSpace} panels={panels} />
-    </Suspense>
+    <div className="flex h-full min-h-0 flex-1 flex-col">
+      <Suspense
+        fallback={
+          <div className="rounded-3xl metal-surface px-4 py-16 text-center text-sm text-muted-foreground">
+            Spaces laden…
+          </div>
+        }
+      >
+        <SpaceCarousel initialSpace={initialSpace} panels={panels} />
+      </Suspense>
+    </div>
   );
 }

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { AppHeight } from "@/components/layout/app-height";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { RegisterServiceWorker } from "@/components/pwa/register-sw";
 import { Toaster } from "@/components/ui/sonner";
@@ -62,6 +63,7 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
+          <AppHeight />
           {children}
           <Toaster />
           <RegisterServiceWorker />

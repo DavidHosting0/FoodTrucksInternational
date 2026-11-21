@@ -281,7 +281,7 @@ export function SpaceCarousel({ initialSpace, panels }: Props) {
   }, [applyTransform, goToIndex]);
 
   return (
-    <div className="flex h-[calc(100dvh-3.5rem-env(safe-area-inset-top,0px))] flex-col lg:h-[calc(100dvh-2rem)]">
+    <div className="-mx-4 flex h-full min-h-0 flex-1 flex-col md:-mx-6 lg:mx-0">
       <div
         ref={viewportRef}
         className="relative min-h-0 flex-1 overflow-hidden"
@@ -292,7 +292,7 @@ export function SpaceCarousel({ initialSpace, panels }: Props) {
               key={space.id}
               data-space={space.id}
               aria-hidden={space.id !== activeId}
-              className="h-full w-full shrink-0 grow-0 basis-full overflow-x-hidden overflow-y-auto overscroll-y-contain px-1 pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] scrollbar-none"
+              className="h-full w-full shrink-0 grow-0 basis-full overflow-x-hidden overflow-y-auto overscroll-y-contain px-4 pb-4 scrollbar-none md:px-6"
               style={{
                 width: "100%",
                 minWidth: "100%",
@@ -307,10 +307,10 @@ export function SpaceCarousel({ initialSpace, panels }: Props) {
       </div>
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-40 lg:hidden"
+        className="z-40 shrink-0 lg:hidden"
         aria-label="Hauptnavigation"
       >
-        <div className="border-t border-white/5 bg-background/90 px-3 pt-2 backdrop-blur-xl pb-[max(0.5rem,env(safe-area-inset-bottom,0px))]">
+        <div className="border-t border-white/5 bg-background/95 px-3 pt-2 backdrop-blur-xl pb-[max(0.5rem,env(safe-area-inset-bottom,0px))]">
           <div className="glass-nav mx-auto flex h-[4.25rem] max-w-lg items-stretch justify-around rounded-[1.75rem] px-1">
             {HOME_SPACES.map((space, i) => {
               const Icon = tabIcon[space.id];

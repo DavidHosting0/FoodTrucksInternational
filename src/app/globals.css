@@ -159,14 +159,18 @@
   html {
     @apply font-sans h-full;
     background-color: var(--background);
+    /* Fallback before AppHeight hydrates */
+    --app-height: 100svh;
+    --vv-bottom-gap: 0px;
   }
   body {
-    @apply text-foreground antialiased min-h-dvh;
+    @apply text-foreground antialiased;
     background-color: var(--background);
     background-image: var(--app-aurora);
     background-attachment: scroll;
-    /* Paint under iOS home indicator / notches */
-    min-height: 100dvh;
+    height: var(--app-height, 100svh);
+    max-height: var(--app-height, 100svh);
+    overflow: hidden;
   }
 }
 
