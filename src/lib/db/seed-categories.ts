@@ -1,0 +1,17 @@
+export const DEFAULT_CATEGORIES = [
+  { name: "Lebensmittel", icon: "shopping-basket", color: "#22c55e" },
+  { name: "Restaurants & Takeaway", icon: "utensils", color: "#f97316" },
+  { name: "Getränke & Snacks", icon: "coffee", color: "#eab308" },
+  { name: "Transport & Mobilität", icon: "bus", color: "#3b82f6" },
+  { name: "Auto", icon: "car", color: "#64748b" },
+  { name: "Wohnen", icon: "home", color: "#8b5cf6" },
+  { name: "Versicherungen", icon: "shield", color: "#06b6d4" },
+  { name: "Gesundheit", icon: "heart-pulse", color: "#ef4444" },
+  { name: "Kleidung", icon: "shirt", color: "#ec4899" },
+  { name: "Elektronik & Technik", icon: "cpu", color: "#14b8a6" },
+  { name: "Freizeit", icon: "gamepad-2", color: "#a855f7" },
+  { name: "Reisen", icon: "plane", color: "#0ea5e9" },
+  { name: "Abonnements", icon: "repeat", color: "#84cc16" },
+  { name: "Shopping", icon: "shopping-bag", color: "#f43f5e" },
+  { name: "Sonstiges", icon: "more-horizontal", color: "#94a3b8" },
+] as const;
