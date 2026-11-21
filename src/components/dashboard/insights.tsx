@@ -8,7 +8,7 @@ export function InsightsList({ insights }: { insights: string[] }) {
         {insights.map((insight, index) => (
           <li
             key={insight}
-            className="rounded-3xl bg-card px-4 py-3.5 text-sm leading-relaxed text-muted-foreground"
+            className="metal-surface rounded-3xl px-4 py-3.5 text-sm leading-relaxed text-muted-foreground"
             style={{ animationDelay: `${160 + index * 40}ms` }}
           >
             <span className="text-foreground">{insight}</span>

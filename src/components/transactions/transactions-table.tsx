@@ -69,6 +69,12 @@ export function TransactionsTable({
                 {formatDate(tx.date)}
                 {tx.categories?.name ? ` · ${tx.categories.name}` : ""}
               </p>
+              {tx.split_data ? (
+                <p className="mt-0.5 text-[11px] text-primary">
+                  C {formatMoney(tx.split_data.totals.Carlo, tx.currency)} · D{" "}
+                  {formatMoney(tx.split_data.totals.David, tx.currency)}
+                </p>
+              ) : null}
             </div>
             <div className="shrink-0 text-right">
               <p className="font-semibold tabular-nums text-expense">

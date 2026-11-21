@@ -19,8 +19,8 @@ export function SnapshotChips({
   return (
     <section className="animate-hero-in flex gap-3 overflow-x-auto pb-1 [animation-delay:120ms] scrollbar-none">
       <Link
-        href="/budgets"
-        className="min-w-[9.5rem] shrink-0 rounded-3xl bg-card px-4 py-4 transition-transform active:scale-[0.98]"
+        href="/dashboard?tab=budget"
+        className="metal-surface min-w-[9.5rem] shrink-0 rounded-3xl px-4 py-4 transition-transform active:scale-[0.98]"
       >
         <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
           Budget
@@ -36,7 +36,7 @@ export function SnapshotChips({
       </Link>
       <Link
         href="/subscriptions"
-        className="min-w-[9.5rem] shrink-0 rounded-3xl bg-card px-4 py-4 transition-transform active:scale-[0.98]"
+        className="metal-surface min-w-[9.5rem] shrink-0 rounded-3xl px-4 py-4 transition-transform active:scale-[0.98]"
       >
         <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
           Abos / Jahr
@@ -49,14 +49,14 @@ export function SnapshotChips({
         </p>
       </Link>
       <Link
-        href="/optimization"
-        className="min-w-[9.5rem] shrink-0 rounded-3xl bg-card px-4 py-4 transition-transform active:scale-[0.98]"
+        href="/dashboard?tab=more"
+        className="metal-surface min-w-[9.5rem] shrink-0 rounded-3xl px-4 py-4 transition-transform active:scale-[0.98]"
       >
         <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-          Optimieren
+          Mehr
         </p>
-        <p className="mt-2 text-2xl font-semibold text-primary">Tipps</p>
-        <p className="mt-1 text-xs text-muted-foreground">Sparpotenziale</p>
+        <p className="metal-text mt-2 text-2xl font-semibold">Tipps</p>
+        <p className="mt-1 text-xs text-muted-foreground">Optimize & Abos</p>
       </Link>
     </section>
   );

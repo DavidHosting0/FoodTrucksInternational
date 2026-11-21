@@ -65,6 +65,7 @@ function toPayload(data: TransactionInput, userId: string) {
       | "unsatisfied"
       | "regret"
       | null,
+    split_data: null,
   };
 }
 

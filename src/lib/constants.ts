@@ -42,26 +42,32 @@ export const PAYMENT_METHOD_OPTIONS: {
 ];
 
 export const NAV_ITEMS = [
-  { href: "/dashboard", label: "Dashboard", icon: "LayoutDashboard" },
-  { href: "/transactions", label: "Transaktionen", icon: "List" },
-  { href: "/transactions/new", label: "Ausgabe erfassen", icon: "PlusCircle" },
+  { href: "/dashboard", label: "Home", icon: "LayoutDashboard" },
+  { href: "/dashboard?tab=list", label: "Liste", icon: "List" },
+  { href: "/dashboard?tab=capture", label: "Erfassen", icon: "PlusCircle" },
+  { href: "/dashboard?tab=budget", label: "Budget", icon: "Wallet" },
+  { href: "/dashboard?tab=more", label: "Mehr", icon: "Settings" },
   { href: "/receipts", label: "Belege", icon: "FileImage" },
   { href: "/categories", label: "Kategorien", icon: "Tags" },
-  { href: "/budgets", label: "Budgets", icon: "Wallet" },
   { href: "/subscriptions", label: "Abonnements", icon: "Repeat" },
-  {
-    href: "/optimization",
-    label: "Cost Optimization",
-    icon: "TrendingDown",
-  },
+  { href: "/optimization", label: "Cost Optimization", icon: "TrendingDown" },
   { href: "/reports", label: "Reports", icon: "FileText" },
   { href: "/settings", label: "Einstellungen", icon: "Settings" },
 ] as const;
 
-export const MOBILE_TAB_ITEMS = [
-  { href: "/dashboard", label: "Home", icon: "LayoutDashboard" },
-  { href: "/transactions", label: "Liste", icon: "List" },
-  { href: "/transactions/new", label: "Plus", icon: "PlusCircle", primary: true },
-  { href: "/budgets", label: "Budget", icon: "Wallet" },
-  { href: "/settings", label: "Mehr", icon: "Settings" },
+export const SPACE_NAV_ITEMS = [
+  { href: "/dashboard", label: "Home", space: "home" },
+  { href: "/dashboard?tab=list", label: "Liste", space: "list" },
+  { href: "/dashboard?tab=capture", label: "Erfassen", space: "capture" },
+  { href: "/dashboard?tab=budget", label: "Budget", space: "budget" },
+  { href: "/dashboard?tab=more", label: "Mehr", space: "more" },
+] as const;
+
+export const MORE_NAV_ITEMS = [
+  { href: "/receipts", label: "Belege", icon: "FileImage" },
+  { href: "/categories", label: "Kategorien", icon: "Tags" },
+  { href: "/subscriptions", label: "Abos", icon: "Repeat" },
+  { href: "/optimization", label: "Optimize", icon: "TrendingDown" },
+  { href: "/reports", label: "Reports", icon: "FileText" },
+  { href: "/settings", label: "Einstellungen", icon: "Settings" },
 ] as const;

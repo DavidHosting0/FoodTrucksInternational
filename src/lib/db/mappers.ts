@@ -2,6 +2,7 @@ import type {
   Budget,
   Category,
   Receipt,
+  ReceiptSplitData,
   RecurringExpense,
   SavingsOpportunity,
   Transaction,
@@ -56,6 +57,7 @@ export function mapTransaction(
     necessity: row.necessity as Transaction["necessity"],
     purchase_type: row.purchaseType as Transaction["purchase_type"],
     satisfaction: row.satisfaction as Transaction["satisfaction"],
+    split_data: (row.splitData as ReceiptSplitData | null) ?? null,
     created_at: row.createdAt.toISOString(),
     updated_at: row.updatedAt.toISOString(),
   };

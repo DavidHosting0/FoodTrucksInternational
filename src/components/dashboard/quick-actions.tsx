@@ -4,24 +4,24 @@ import { cn } from "@/lib/utils";
 
 const actions = [
   {
-    href: "/transactions/new",
-    label: "Erfassen",
+    href: "/dashboard?tab=capture",
+    label: "Kamera",
     icon: Plus,
     primary: true,
   },
   {
-    href: "/transactions",
+    href: "/dashboard?tab=list",
     label: "Liste",
     icon: List,
   },
   {
-    href: "/budgets",
-    label: "Budgets",
+    href: "/dashboard?tab=budget",
+    label: "Budget",
     icon: Wallet,
   },
   {
-    href: "/receipts",
-    label: "Belege",
+    href: "/dashboard?tab=more",
+    label: "Mehr",
     icon: FileImage,
   },
 ] as const;
@@ -41,8 +41,8 @@ export function QuickActions() {
               className={cn(
                 "flex size-14 items-center justify-center rounded-full",
                 "primary" in action && action.primary
-                  ? "bg-primary text-primary-foreground shadow-[0_8px_24px_oklch(0.78_0.2_145_/_0.3)]"
-                  : "bg-secondary text-foreground"
+                  ? "metal-fab"
+                  : "metal-surface text-foreground"
               )}
             >
               <Icon className="size-6" strokeWidth={2.25} />

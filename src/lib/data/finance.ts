@@ -133,6 +133,7 @@ export async function insertTransaction(
       necessity: payload.necessity,
       purchaseType: payload.purchase_type,
       satisfaction: payload.satisfaction,
+      splitData: payload.split_data ?? null,
     })
     .returning();
 
@@ -171,6 +172,7 @@ export async function patchTransaction(
       necessity: payload.necessity,
       purchaseType: payload.purchase_type,
       satisfaction: payload.satisfaction,
+      splitData: payload.split_data ?? null,
       updatedAt: new Date(),
     })
     .where(and(eq(transactions.id, id), eq(transactions.userId, userId)))
@@ -438,6 +440,8 @@ export async function insertReceipt(input: {
   file_size?: number | null;
   content_hash?: string | null;
   transaction_id?: string | null;
+  ocr_raw_text?: string | null;
+  ocr_data?: Record<string, unknown> | null;
 }) {
   const db = getDb();
   const userId = await requireUserId();
@@ -451,6 +455,8 @@ export async function insertReceipt(input: {
       fileSize: input.file_size ?? null,
       contentHash: input.content_hash ?? null,
       transactionId: input.transaction_id ?? null,
+      ocrRawText: input.ocr_raw_text ?? null,
+      ocrData: input.ocr_data ?? null,
     })
     .returning();
   return mapReceipt(row);

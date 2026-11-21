@@ -23,6 +23,34 @@ export type ExpenseScope = "private" | "business";
 
 export type RecurringInterval = "monthly" | "quarterly" | "yearly";
 
+export type SplitPerson = "Carlo" | "David";
+
+export interface ReceiptSplitItem {
+  id: string;
+  name: string;
+  quantity: number;
+  unit_price: number;
+  line_total: number;
+  assignments: { Carlo: number; David: number };
+}
+
+export interface ReceiptSplitData {
+  persons: ["Carlo", "David"];
+  merchant_meta: {
+    merchant: string;
+    datetime?: string | null;
+    date?: string | null;
+    time?: string | null;
+    card_type?: string | null;
+    payment_last4?: string | null;
+    payment_method?: string | null;
+    currency?: Currency;
+    total?: number | null;
+  };
+  items: ReceiptSplitItem[];
+  totals: { Carlo: number; David: number; receipt: number };
+}
+
 export interface Profile {
   id: string;
   display_name: string | null;
@@ -60,6 +88,7 @@ export interface Transaction {
   necessity: Necessity | null;
   purchase_type: PurchaseType | null;
   satisfaction: Satisfaction | null;
+  split_data: ReceiptSplitData | null;
   created_at: string;
   updated_at: string;
   categories?: Category | null;

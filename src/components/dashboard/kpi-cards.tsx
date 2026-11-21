@@ -25,7 +25,7 @@ export function KpiCards({ metrics }: { metrics: DashboardMetrics }) {
   return (
     <section className="grid grid-cols-2 gap-2 sm:grid-cols-4">
       {items.map((item) => (
-        <div key={item.label} className="rounded-3xl bg-card px-3 py-3.5">
+        <div key={item.label} className="metal-surface rounded-3xl px-3 py-3.5">
           <p className="text-[11px] font-medium text-muted-foreground">
             {item.label}
           </p>

@@ -1,17 +1,22 @@
 import { format } from "date-fns";
 import {
   getBudgets,
+  getCategories,
   getRecurringExpenses,
+  getSavingsOpportunities,
   getTransactions,
 } from "@/lib/data/finance";
 import { computeDashboardMetrics } from "@/lib/analytics/dashboard";
-import { HeroBalance } from "@/components/dashboard/hero-balance";
-import { QuickActions } from "@/components/dashboard/quick-actions";
-import { SnapshotChips } from "@/components/dashboard/snapshot-chips";
-import { KpiCards } from "@/components/dashboard/kpi-cards";
-import { DashboardCharts } from "@/components/dashboard/charts";
-import { InsightsList } from "@/components/dashboard/insights";
+import { generateSavingsOpportunities } from "@/lib/analytics/optimization";
 import { formatMoney } from "@/lib/format";
+import { HomeSpaces } from "@/components/home/home-spaces";
+import {
+  BudgetsSpace,
+  CaptureSpace,
+  ListSpace,
+  MoreSpace,
+  OverviewSpace,
+} from "@/components/home/space-panels";
 
 function yearly(amount: number, interval: string) {
   if (interval === "monthly") return amount * 12;
@@ -19,13 +24,23 @@ function yearly(amount: number, interval: string) {
   return amount;
 }
 
-export default async function DashboardPage() {
-  const month = format(new Date(), "yyyy-MM");
-  const [transactions, budgets, subscriptions] = await Promise.all([
-    getTransactions(),
-    getBudgets(month),
-    getRecurringExpenses(),
-  ]);
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ space?: string; tab?: string; month?: string }>;
+}) {
+  const params = await searchParams;
+  const month = params.month ?? format(new Date(), "yyyy-MM");
+
+  const [transactions, budgets, subscriptions, categories, stored] =
+    await Promise.all([
+      getTransactions(),
+      getBudgets(month),
+      getRecurringExpenses(),
+      getCategories(),
+      getSavingsOpportunities(),
+    ]);
+
   const metrics = computeDashboardMetrics(transactions);
 
   const budgetRows = budgets.map((budget) => {
@@ -48,6 +63,27 @@ export default async function DashboardPage() {
     0
   );
 
+  const currency = transactions[0]?.currency ?? metrics.currency;
+  const opportunities =
+    stored.length > 0
+      ? stored
+      : generateSavingsOpportunities(
+          transactions,
+          subscriptions,
+          currency
+        ).map((item, index) => ({
+          ...item,
+          id: `tmp-${index}`,
+          user_id: "tmp",
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        }));
+
+  const totalYearly = opportunities.reduce(
+    (sum, item) => sum + Number(item.yearly_savings),
+    0
+  );
+
   const insights = [...metrics.insights];
   if (subYearly > 0) {
     insights.unshift(
@@ -61,24 +97,39 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="space-y-8">
-      <HeroBalance
-        total={metrics.currentTotal}
-        currency={metrics.currency}
-        delta={metrics.monthOverMonthDelta}
-      />
-      <QuickActions />
-      <SnapshotChips
-        budgetPct={budgetPct}
-        budgetSpent={budgetSpent}
-        budgetTotal={budgetTotal}
-        subYearly={subYearly}
-        currency={metrics.currency}
-        activeSubs={activeSubs.length}
-      />
-      <KpiCards metrics={metrics} />
-      <InsightsList insights={insights.slice(0, 4)} />
-      <DashboardCharts metrics={metrics} />
-    </div>
+    <HomeSpaces
+      initialSpace={params.tab ?? params.space}
+      panels={{
+        home: (
+          <OverviewSpace
+            metrics={metrics}
+            insights={insights}
+            budgetPct={budgetPct}
+            budgetSpent={budgetSpent}
+            budgetTotal={budgetTotal}
+            subYearly={subYearly}
+            activeSubs={activeSubs.length}
+          />
+        ),
+        list: <ListSpace transactions={transactions} />,
+        capture: <CaptureSpace categories={categories} />,
+        budget: (
+          <BudgetsSpace
+            categories={categories}
+            budgets={budgetRows}
+            month={month}
+          />
+        ),
+        more: (
+          <MoreSpace
+            opportunities={opportunities}
+            currency={currency}
+            totalYearly={totalYearly}
+            categories={categories}
+            subscriptions={subscriptions}
+          />
+        ),
+      }}
+    />
   );
 }

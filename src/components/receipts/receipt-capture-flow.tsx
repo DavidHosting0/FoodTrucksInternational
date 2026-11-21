@@ -1,0 +1,207 @@
+"use client";
+
+import { useEffect, useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { Camera, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import type { Category } from "@/types/database";
+import {
+  confirmReceiptSplitAction,
+  scanReceiptAction,
+  type ConfirmReceiptState,
+  type ScanReceiptState,
+} from "@/app/actions/receipt-scan";
+import type { SplitData } from "@/lib/validations/split";
+import { ReceiptReview } from "@/components/receipts/receipt-review";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+
+type Phase = "capture" | "scanning" | "review";
+
+export function ReceiptCaptureFlow({
+  categories,
+  autoOpenCamera = true,
+  onDone,
+}: {
+  categories: Category[];
+  autoOpenCamera?: boolean;
+  onDone?: () => void;
+}) {
+  const router = useRouter();
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [phase, setPhase] = useState<Phase>("capture");
+  const [preview, setPreview] = useState<string | null>(null);
+  const [scanError, setScanError] = useState<string | null>(null);
+  const [confirmError, setConfirmError] = useState<string | null>(null);
+  const [draft, setDraft] = useState<SplitData | null>(null);
+  const [scanId, setScanId] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [pendingScan, startScan] = useTransition();
+  const [pendingConfirm, startConfirm] = useTransition();
+
+  useEffect(() => {
+    if (!autoOpenCamera) return;
+    const t = window.setTimeout(() => fileRef.current?.click(), 250);
+    return () => window.clearTimeout(t);
+  }, [autoOpenCamera]);
+
+  useEffect(() => {
+    return () => {
+      if (preview) URL.revokeObjectURL(preview);
+    };
+  }, [preview]);
+
+  const reset = () => {
+    setPhase("capture");
+    setDraft(null);
+    setScanId(null);
+    setPreviewUrl(null);
+    setScanError(null);
+    setConfirmError(null);
+    setPreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
+    if (fileRef.current) fileRef.current.value = "";
+  };
+
+  const runScan = (file: File) => {
+    setScanError(null);
+    setPhase("scanning");
+    const fd = new FormData();
+    fd.set("file", file);
+
+    startScan(async () => {
+      const result: ScanReceiptState = await scanReceiptAction({}, fd);
+      if (result.error || !result.draft || !result.scanId) {
+        setScanError(result.error ?? "Scan fehlgeschlagen");
+        setPhase("capture");
+        return;
+      }
+      setDraft(result.draft);
+      setScanId(result.scanId);
+      setPreviewUrl(result.previewUrl ?? null);
+      setPhase("review");
+    });
+  };
+
+  const onFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    setPreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return url;
+    });
+    runScan(file);
+  };
+
+  const onConfirm = (payload: {
+    split: SplitData;
+    categoryId: string;
+    acceptMismatch: boolean;
+  }) => {
+    if (!scanId) return;
+    setConfirmError(null);
+    const fd = new FormData();
+    fd.set("scanId", scanId);
+    fd.set("category_id", payload.categoryId);
+    fd.set("split_json", JSON.stringify(payload.split));
+    if (payload.acceptMismatch) fd.set("accept_total_mismatch", "on");
+
+    startConfirm(async () => {
+      const result: ConfirmReceiptState = await confirmReceiptSplitAction(
+        {},
+        fd
+      );
+      if (result.error) {
+        setConfirmError(result.error);
+        return;
+      }
+      toast.success(result.success ?? "Gespeichert");
+      onDone?.();
+      router.push("/dashboard?tab=list");
+      router.refresh();
+    });
+  };
+
+  return (
+    <div className="space-y-5">
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="sr-only"
+        onChange={onFileChange}
+      />
+
+      {phase === "capture" ? (
+        <div className="space-y-4">
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            className="metal-surface flex w-full flex-col items-center justify-center gap-3 rounded-[1.75rem] px-4 py-16 text-sm text-muted-foreground transition-transform active:scale-[0.99]"
+          >
+            {preview ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={preview}
+                alt="Vorschau"
+                className="max-h-56 w-full rounded-2xl object-contain"
+              />
+            ) : (
+              <>
+                <span className="metal-fab flex size-16 items-center justify-center rounded-full">
+                  <Camera className="size-7" />
+                </span>
+                <span className="text-base font-medium text-foreground">
+                  Beleg fotografieren
+                </span>
+                <span>Kamera öffnet sich für den Kassenzettel</span>
+              </>
+            )}
+          </button>
+          {scanError ? (
+            <Alert variant="destructive">
+              <AlertDescription>{scanError}</AlertDescription>
+            </Alert>
+          ) : null}
+          <Button
+            type="button"
+            variant="secondary"
+            className="w-full"
+            onClick={() => fileRef.current?.click()}
+          >
+            Erneut aufnehmen
+          </Button>
+        </div>
+      ) : null}
+
+      {phase === "scanning" || pendingScan ? (
+        <div className="metal-plate flex flex-col items-center justify-center gap-3 rounded-[1.75rem] px-4 py-20 text-white">
+          <Loader2 className="size-8 animate-spin" />
+          <p className="text-lg font-semibold">Beleg wird gelesen…</p>
+          <p className="text-sm text-white/70">OCR + KI-Analyse</p>
+        </div>
+      ) : null}
+
+      {phase === "review" && draft && scanId ? (
+        <div className="space-y-4">
+          <ReceiptReview
+            initial={draft}
+            categories={categories}
+            previewUrl={previewUrl ?? preview ?? undefined}
+            scanId={scanId}
+            error={confirmError ?? undefined}
+            pending={pendingConfirm}
+            onSubmit={onConfirm}
+          />
+          <Button type="button" variant="ghost" className="w-full" onClick={reset}>
+            Anderes Foto
+          </Button>
+        </div>
+      ) : null}
+    </div>
+  );
+}

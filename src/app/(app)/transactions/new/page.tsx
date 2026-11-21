@@ -1,5 +1,5 @@
 import { getCategories } from "@/lib/data/finance";
-import { TransactionForm } from "@/components/transactions/transaction-form";
+import { ReceiptCaptureFlow } from "@/components/receipts/receipt-capture-flow";
 
 export default async function NewTransactionPage() {
   const categories = await getCategories();
@@ -7,14 +7,12 @@ export default async function NewTransactionPage() {
   return (
     <div className="mx-auto max-w-xl space-y-6">
       <div className="text-center sm:text-left">
-        <h1 className="text-3xl font-semibold tracking-tight">Neue Ausgabe</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">Ausgabe erfassen</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Schnell erfassen — Details kannst du später ergänzen.
+          Beleg fotografieren — OCR erkennt Positionen, danach Carlo/David zuteilen.
         </p>
       </div>
-      <div className="rounded-3xl bg-card p-4 sm:p-6">
-        <TransactionForm categories={categories} />
-      </div>
+      <ReceiptCaptureFlow categories={categories} autoOpenCamera />
     </div>
   );
 }
